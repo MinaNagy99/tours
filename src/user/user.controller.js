@@ -1,0 +1,47 @@
+import userModel from "../../DataBase/models/userModel.js";
+import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
+import { removeImage } from "../../middlewares/deleteImg.js";
+import { AppError } from "../../utilities/AppError.js";
+
+const register = catchAsyncError(async (req, res, next) => {
+  const { email } = req.body;
+  const oldUser = await userModel.findOne({ email });
+  if (oldUser) return next(new AppError("user already exists", 400));
+  const user = new userModel(req.body);
+  await user.save();
+  user.token = await user.generateToken();
+  res.status(200).send({ message: "success", data: user });
+});
+const getAllUsers = catchAsyncError(async (req, res, next) => {
+  const users = await userModel.find();
+  !users && new AppError("can't find users");
+  res.status(200).send({ message: "success", data: users });
+});
+
+const login = catchAsyncError(async (req, res, next) => {
+  const { email, password } = req.body;
+  const user = await userModel.findOne({ email });
+  if (!user) return next(new AppError("user not found", 400));
+  if (!(await user.comparePassword(password))) {
+    return next(new AppError("incorrect email or password"));
+  }
+  const token = await user.generateToken();
+  res.status(200).send({ message: "success", data: user, token });
+});
+
+const getUserById = catchAsyncError(async (req, res, next) => {
+    console.log('ddd');
+  const { id } = req.params;
+  const user = await userModel.findById(id);
+  !user && next(new AppError("can't find the user"));
+  res.status(200).send({ message: "success", data: user });
+});
+
+const updateUserProfile = catchAsyncError(async (req, res, next) => {
+  const { _id } = req.user;
+  const { avatar } = await userModel.findByIdAndUpdate(_id, req.body);
+  removeImage(avatar.public_id);
+  res.status(200).send({ message: "success" });
+});
+
+export { login, register, updateUserProfile, getUserById, getAllUsers };
