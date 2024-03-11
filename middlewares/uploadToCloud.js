@@ -67,6 +67,7 @@ export const saveImg = async (req, res, next) => {
       }
     }
   } else {
+    console.log(req.file);
     req.body[req.file?.fieldname] = await handleFileUpload(
       getFolderName(),
       req.file?.buffer

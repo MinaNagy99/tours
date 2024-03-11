@@ -10,18 +10,16 @@ import {
 import { userSchemaCreate, userSchemaLogin } from "./user.validation.js";
 import { allowedTo, auth } from "../../middlewares/auth.js";
 import { validation } from "../../middlewares/validation.js";
-import { uploadSingleFile } from "../../middlewares/fileUpload.js";
+import {
+  uploadMixfile,
+  uploadSingleFile
+} from "../../middlewares/fileUpload.js";
 import { saveImg } from "../../middlewares/uploadToCloud.js";
 
 const userRouter = Router();
 userRouter
   .route("/register")
-  .post(
-    uploadSingleFile("avatar"),
-    saveImg,
-    validation(userSchemaCreate),
-    register
-  );
+  .post(uploadMixfile([{ name: "avatar", maxCount: 1 }]), saveImg, register);
 userRouter.route("/login").post(validation(userSchemaLogin), login);
 userRouter.route("/").get(auth, allowedTo("admin"), getAllUsers);
 userRouter.route("/:id").get(getUserById);

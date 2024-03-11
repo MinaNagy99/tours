@@ -20,7 +20,11 @@ const userSchemaCreate = joi.object({
     .string()
     .pattern(/^(?=.*[A-Za-z])(?=.*\d).{8,}$/)
     .required(),
-  rePassword: joi.ref("password")
+  rePassword: joi.ref("password"),
+  avatar: joi.any(),
+  age: joi.number(),
+  nationality: joi.string(),
+  phone: joi.number()
 });
 
 export { userSchemaCreate, userSchemaLogin };
