@@ -9,8 +9,8 @@ const schema = new Schema({
   },
   images: [
     {
-      url: { type: String, required: true },
-      public_id: { type: String, required: true }
+      url: { type: String },
+      public_id: { type: String }
     }
   ],
   options: [
@@ -19,10 +19,30 @@ const schema = new Schema({
       price: { type: Number }
     }
   ],
+  isRepeated: { type: Boolean, default: true },
+  repeatTime: [{ type: Number }],
+  RepeatDays: [
+    {
+      type: String,
+      enum: [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ]
+    }
+  ],
 
-  dateOfTour: { type: String, required: true },
-  lacation: { type: String, required: true },
+  dateDetails: { type: String },
+  lacation: {
+    from: { type: String, required: true },
+    to: { type: String, required: true }
+  },
   inclusions: [{ type: String }],
+  exclusions: [{ typr: String }],
   adultPricing: [
     {
       adults: { type: Number },

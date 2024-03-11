@@ -30,7 +30,7 @@ const login = catchAsyncError(async (req, res, next) => {
 });
 
 const getUserById = catchAsyncError(async (req, res, next) => {
-    console.log('ddd');
+  console.log("ddd");
   const { id } = req.params;
   const user = await userModel.findById(id);
   !user && next(new AppError("can't find the user"));
@@ -44,4 +44,39 @@ const updateUserProfile = catchAsyncError(async (req, res, next) => {
   res.status(200).send({ message: "success" });
 });
 
-export { login, register, updateUserProfile, getUserById, getAllUsers };
+const addToWishList = catchAsyncError(async (req, res, next) => {
+  const { _id } = req.user;
+  const { id } = req.params;
+  const user = await userModelModel.findByIdAndUpdate(
+    _id,
+    {
+      $addToSet: { wishLish: id }
+    },
+    { new: true }
+  );
+  !tour && next(new AppError("can't find the tour"));
+  res.status(200).send({ message: "success", data: user });
+});
+const removeFromWishList = catchAsyncError(async (req, res, next) => {
+  const { _id } = req.user;
+  const { id } = req.params;
+  const user = await userModelModel.findByIdAndUpdate(
+    _id,
+    {
+      $pull: { wishLish: id }
+    },
+    { new: true }
+  );
+  !tour && next(new AppError("can't find the tour"));
+  res.status(200).send({ message: "success", data: user });
+});
+
+export {
+  login,
+  register,
+  updateUserProfile,
+  getUserById,
+  getAllUsers,
+  addToWishList,
+  removeFromWishList
+};

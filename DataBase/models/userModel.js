@@ -1,4 +1,4 @@
-import mongoose, { Model, Schema } from "mongoose";
+import mongoose, { Model, Schema, Types } from "mongoose";
 import { hash, compare } from "bcrypt";
 import jwt from "jsonwebtoken";
 const schema = new Schema(
@@ -8,7 +8,9 @@ const schema = new Schema(
     password: { type: String, required: true },
     phone: { type: Number, required: true },
     age: { type: Number, required: true },
+    avatar: { url: { type: String }, public_id: { type: String } },
     nationality: { type: String, required: true },
+    wishList: [{ type: Types.ObjectId, ref: "tour" }],
     role: {
       type: String,
       enum: ["user", "admin"],

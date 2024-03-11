@@ -1,18 +1,31 @@
 import { Router } from "express";
 import {
+  addToWishList,
   getAllUsers,
   getUserById,
   login,
-  register
+  register,
+  removeFromWishList
 } from "./user.controller.js";
 import { userSchemaCreate, userSchemaLogin } from "./user.validation.js";
 import { allowedTo, auth } from "../../middlewares/auth.js";
 import { validation } from "../../middlewares/validation.js";
+import { uploadSingleFile } from "../../middlewares/fileUpload.js";
+import { saveImg } from "../../middlewares/uploadToCloud.js";
 
 const userRouter = Router();
-userRouter.route("/register").post(validation(userSchemaCreate), register);
+userRouter
+  .route("/register")
+  .post(
+    uploadSingleFile("avatar"),
+    saveImg,
+    validation(userSchemaCreate),
+    register
+  );
 userRouter.route("/login").post(validation(userSchemaLogin), login);
 userRouter.route("/").get(auth, allowedTo("admin"), getAllUsers);
 userRouter.route("/:id").get(getUserById);
+userRouter.route("/:id/addToWishlist").patch(auth, addToWishList);
+userRouter.route("/:id/removeWishlist").patch(auth, removeFromWishList);
 
 export default userRouter;
