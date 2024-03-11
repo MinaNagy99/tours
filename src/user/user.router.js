@@ -23,7 +23,7 @@ userRouter
 userRouter.route("/login").post(validation(userSchemaLogin), login);
 userRouter.route("/").get(auth, allowedTo("admin"), getAllUsers);
 userRouter.route("/:id").get(getUserById);
-userRouter.route("/:id/addToWishlist").patch(auth, addToWishList);
-userRouter.route("/:id/removeWishlist").patch(auth, removeFromWishList);
+userRouter.route("/addToWishlist/:id").patch(auth, addToWishList);
+userRouter.route("/removeWishlist/:id").patch(auth, removeFromWishList);
 
 export default userRouter;

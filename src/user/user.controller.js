@@ -47,27 +47,28 @@ const updateUserProfile = catchAsyncError(async (req, res, next) => {
 const addToWishList = catchAsyncError(async (req, res, next) => {
   const { _id } = req.user;
   const { id } = req.params;
-  const user = await userModelModel.findByIdAndUpdate(
+  const user = await userModel.findByIdAndUpdate(
     _id,
     {
-      $addToSet: { wishLish: id }
+      $addToSet: { wishList: id } // Corrected field name to wishList
     },
     { new: true }
   );
-  !tour && next(new AppError("can't find the tour"));
+  !user && next(new AppError("can't find the tour"));
   res.status(200).send({ message: "success", data: user });
 });
+
 const removeFromWishList = catchAsyncError(async (req, res, next) => {
   const { _id } = req.user;
   const { id } = req.params;
-  const user = await userModelModel.findByIdAndUpdate(
+  const user = await userModel.findByIdAndUpdate(
     _id,
     {
-      $pull: { wishLish: id }
+      $pull: { wishList: id }
     },
     { new: true }
   );
-  !tour && next(new AppError("can't find the tour"));
+  !user && next(new AppError("can't find the tour"));
   res.status(200).send({ message: "success", data: user });
 });
 

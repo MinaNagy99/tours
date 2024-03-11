@@ -27,12 +27,15 @@ schema.pre("save", async function (next) {
   return next();
 });
 schema.pre("findByIdAndUpdate", async function (next) {
-  console.log("hasshshshshs");
   if (this.isModified("password")) {
     this.password = await hash(this.password, 10);
     return next();
   }
   return next();
+});
+schema.pre(/^find/, async function (next) {
+  this.populate("wishList");
+  next();
 });
 schema.methods.generateToken = async function () {
   return await jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
