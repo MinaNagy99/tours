@@ -9,8 +9,8 @@ const register = catchAsyncError(async (req, res, next) => {
   if (oldUser) return next(new AppError("user already exists", 400));
   const user = new userModel(req.body);
   await user.save();
-  user.token = await user.generateToken();
-  res.status(200).send({ message: "success", data: user });
+  const token = await user.generateToken();
+  res.status(200).send({ message: "success", data: user, token });
 });
 const getAllUsers = catchAsyncError(async (req, res, next) => {
   const users = await userModel.find();
