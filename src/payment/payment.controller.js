@@ -12,11 +12,12 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
   const { _id } = req.user;
   const subscription = await subscriptionModel.find({
     _id: id,
-    userDetails: _id
+    userDetails: _id,
+    payment: "pending"
   });
   const totalPrice = subscription[0].totalPrice;
   const userName = subscription[0].userDetails.name;
-  if (subscription[0].payment == "pending") {
+  if (subscription) {
     let stripeSession = await stripeInstance.checkout.sessions.create({
       line_items: [
         {
@@ -45,7 +46,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
 
     res.json({ redirectTo: stripeSession.url });
   } else {
-    next(new AppError("payment status is not pending"));
+    next(new AppError("can't find the subscription"));
   }
 });
 
