@@ -40,9 +40,6 @@ const getAllSubscription = catchAsyncError(async (req, res, next) => {
   const subscription = await subscriptionModel.find();
   res.status(200).send({ message: "success", data: subscription });
 });
-const createCheckoutSession = catchAsyncError(async(req,res,next)=>{
-  const customer = await stripe.customers.create({
-    email: 'customer@example.com',
-  })})
+
 
 export { createSubscription, getAllSubscription };

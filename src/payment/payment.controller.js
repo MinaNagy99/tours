@@ -49,8 +49,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
 });
 
 export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
-  req.subscriptionId;
-
+  console.log(`from handel success payment : ${req.subscriptionId}`);
   const subscription = await subscriptionModel.findByIdAndUpdate(
     req.subscriptionId,
     {
@@ -79,8 +78,12 @@ export const webhook = catchAsyncError(async (req, res, next) => {
     switch (event.type) {
       case "checkout.session.async_payment_succeeded":
         const checkoutSessionAsyncPaymentSucceeded = event.data.object;
+        console.log(`from webhook this is checkoutSessionAsync : ${checkoutSessionAsyncPaymentSucceeded}`);
+
         // Then define and call a function to handle the event checkout.session.async_payment_succeeded
         const metadata = checkoutSessionAsyncPaymentSucceeded.metadata;
+        console.log(`from webhook this is metadata : ${metadata}`);
+
         req.subscriptionId = metadata.subscriptionId;
         break;
       // ... handle other event types
