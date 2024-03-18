@@ -52,6 +52,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
 
 export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
   req.subscriptionId;
+
   const subscription = await subscriptionModel.findByIdAndUpdate(
     req.subscriptionId,
     {
@@ -81,14 +82,14 @@ export const webhook = catchAsyncError(async (req, res, next) => {
       case "checkout.session.async_payment_succeeded":
         const checkoutSessionAsyncPaymentSucceeded = event.data.object;
         // Then define and call a function to handle the event checkout.session.async_payment_succeeded
+        const metadata = checkoutSessionAsyncPaymentSucceeded.metadata;
+        req.subscriptionId = metadata.subscriptionId;
         break;
       // ... handle other event types
       default:
         console.log(`Unhandled event type ${event.type}`);
     }
-    const metadata = checkoutSessionAsyncPaymentSucceeded.metadata;
-    req.subscriptionId = metadata.subscriptionId;
-    // Respond with a 2xx status to acknowledge receipt of the event
+
     next();
   } catch (err) {
     // Return an error response if the signature is invalid or the event is malformed
