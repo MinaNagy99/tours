@@ -1,13 +1,12 @@
 import mongoose from "mongoose";
-const DbConnection = mongoose
-  .connect(
-    "mongodb+srv://minanagykhalefa:KABnpeDEzhopoRJV@cluster0.c1op2rb.mongodb.net/"
-  )
-  .then(() => {
-    console.log("connection is done");
-  })
-  .catch((err) => {
-    console.log(`err is : ${err}`);
-  });
+import  dotenv  from "dotenv";
+dotenv.config()
+const dbConnection = mongoose.connect(process.env.DB_CONNECTION_URL).then(()=>{
+    console.log('connection is done');
+}).catch(err => {
+    console.log(`error connecting to ${err}`);
+})
 
-export default DbConnection;
+
+
+export default dbConnection
