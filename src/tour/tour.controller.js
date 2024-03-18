@@ -53,8 +53,18 @@ const getTourById = catchAsyncError(async (req, res, next) => {
   res.status(200).send({ message: "success", data: tour });
 });
 
-const participateInTour = catchAsyncError(async (req, res, next) => {
-  
+const deleteAllTour = catchAsyncError(async (req, res, next) => {
+  await tourModel.deleteMany();
+  res.status(200).send({ message: "success" });
 });
 
-export { getAllTour, createTour, getTourById, deleteTour, updateTour };
+const participateInTour = catchAsyncError(async (req, res, next) => {});
+
+export {
+  getAllTour,
+  createTour,
+  getTourById,
+  deleteTour,
+  updateTour,
+  deleteAllTour
+};

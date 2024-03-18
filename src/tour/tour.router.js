@@ -17,7 +17,8 @@ tourRouter
     ]),
     saveImg,
     Tour.createTour
-  );
+  )
+  .delete(auth, allowedTo("admin"),Tour.deleteAllTour);
 
 tourRouter
   .route("/:id")

@@ -42,17 +42,19 @@ const schema = new Schema({
     to: { type: String, required: true }
   },
   inclusions: [{ type: String }],
-  exclusions: [{ typr: String }],
+  exclusions: [{ type: String }],
   adultPricing: [
     {
       adults: { type: Number },
-      pricePerPerson: { type: Number }
+      pricePerPerson: { type: Number },
+      totalPrice: { type: Number }
     }
   ],
   childrenPricing: [
     {
       children: { type: Number },
-      pricePerPerson: { type: Number }
+      pricePerPerson: { type: Number },
+      totalPrice: { type: Number }
     }
   ],
   duration: { type: String },
@@ -61,9 +63,24 @@ const schema = new Schema({
   tourParticipants: [{ type: Types.ObjectId, ref: "user" }]
 });
 
+schema.pre("save", function (next) {
+  // Calculate total price for adultPricing
+  this.adultPricing.forEach(adult => {
+    adult.totalPrice = adult.adults * adult.pricePerPerson;
+  });
+
+  // Calculate total price for childrenPricing
+  this.childrenPricing.forEach(child => {
+    child.totalPrice = child.children * child.pricePerPerson;
+  });
+
+  next();
+});
+
 // schema.pre("find", function () {
 //   this.populate({ path: "createdBy", model: "user" });
 // });
+
 const tourModel = mongoose.model("tour", schema);
 
 export default tourModel;
