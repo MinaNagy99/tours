@@ -3,9 +3,7 @@ import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
 import { AppError } from "../../utilities/AppError.js";
 import subscriptionModel from "../../DataBase/models/subscriptionModel.js";
 
-const stripeInstance = stripe(
-  "sk_test_51OuXAh1dg36NYh7MM3PBMH6wiDcabjaml5KopcnrfwsZJgk4haRfF0B5ZsRAI8Aj35R6oZQrAuqp5oFXpa2vovxV00XmL4qnL1"
-);
+const stripeInstance = stripe(process.env.STRIPE_SECRET_KEY);
 
 export const sessionCheckout = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
