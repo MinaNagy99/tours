@@ -5,5 +5,5 @@ const paymentRouter = express.Router();
 
 paymentRouter.post("/checkout-session", auth, sessionCheckout);
 paymentRouter.get('/success', handleSuccessPayment);
-paymentRouter.post('/webhook', webhook);
+paymentRouter.post('/handelPassCheckout', webhook,handleSuccessPayment);
 export default paymentRouter;

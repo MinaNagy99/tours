@@ -36,78 +36,37 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
 });
 
 export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
-  try {
-    // const sessionId = req.query.session_id;
-    console.log(req);
-    res.send({ message: "success" });
-
-    // res.json({
-    //   message: 'Payment successful',
-    //   instructorHandler,
-    //   clientHandler,
-    //   date,
-    //   notes,
-    //   token,
-    // });
-
-    // const bookSessionUrl = "http://localhost:5000/api/session/book";
-    // const bookSessionUrl = 'bashmohands.onrender.com/api/session/book';
-
-    // const response = axios.post(
-    //   bookSessionUrl,
-    //   {
-    //     instructorHandler,
-    //     clientHandler,
-    //     date,
-    //     topics: ["Js"],
-    //     notes
-    //   },
-    //   {
-    //     headers: {
-    //       Authorization: `Bearer ${token}`,
-    //       "Content-Type": "application/json"
-    //     }
-    //   }
-    // );
-
-    // console.log(response.data);
-
-    // Response(res, "Session Booked Successfuuly.", 200);
-  } catch (error) {
-    console.log("Error in /success route:", error);
-    res.status(500).json({ error });
-  }
+  res.status(200).send({message:"success",data:"checkout is done"})
 });
 
-export const webhook = catchAsyncError((req, res) => {
-  console.log('webhook with stip');
-  const sig = req.headers['stripe-signature'];
+export const webhook = catchAsyncError(async (req, res, next) => {
+  const sig = req.headers["stripe-signature"];
 
   try {
-    const event = stripe.webhooks.constructEvent(req.body, sig, 'your_webhook_secret');
+    const event = await stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      "your_webhook_secret"
+    );
     // Handle the event
-    console.log('Received event:', event.type);
-    
+    console.log("Received event:", event.type);
+
     // Process event based on its type
     switch (event.type) {
-      case 'payment_intent.succeeded':
-        const paymentIntent = event.data.object;
-        // Handle successful payment
+      case "checkout.session.async_payment_succeeded":
+        const checkoutSessionAsyncPaymentSucceeded = event.data.object;
+        // Then define and call a function to handle the event checkout.session.async_payment_succeeded
         break;
-      case 'payment_intent.payment_failed':
-        const failedPaymentIntent = event.data.object;
-        // Handle failed payment
-        break;
-      // Handle other event types as needed
+      // ... handle other event types
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        console.log(`Unhandled event type ${event.type}`);
     }
 
     // Respond with a 2xx status to acknowledge receipt of the event
-    res.json({ received: true });
+    next();
   } catch (err) {
     // Return an error response if the signature is invalid or the event is malformed
-    console.error('Error verifying webhook signature:', err.message);
+    console.error("Error verifying webhook signature:", err.message);
     return res.sendStatus(400);
   }
-}) 
+});
