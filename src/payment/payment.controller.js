@@ -13,9 +13,9 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
     userDetails: _id,
     payment: "pending"
   });
-  const totalPrice = subscription[0].totalPrice;
-  const userName = subscription[0].userDetails.name;
   if (subscription) {
+    const totalPrice = subscription[0].totalPrice;
+    const userName = subscription[0].userDetails.name;
     let stripeSession = await stripeInstance.checkout.sessions.create({
       line_items: [
         {
@@ -78,7 +78,9 @@ export const webhook = catchAsyncError(async (req, res, next) => {
     switch (event.type) {
       case "checkout.session.async_payment_succeeded":
         const checkoutSessionAsyncPaymentSucceeded = event.data.object;
-        console.log(`from webhook this is checkoutSessionAsync : ${checkoutSessionAsyncPaymentSucceeded}`);
+        console.log(
+          `from webhook this is checkoutSessionAsync : ${checkoutSessionAsyncPaymentSucceeded}`
+        );
 
         // Then define and call a function to handle the event checkout.session.async_payment_succeeded
         const metadata = checkoutSessionAsyncPaymentSucceeded.metadata;
