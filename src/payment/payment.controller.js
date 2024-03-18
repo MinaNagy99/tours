@@ -9,10 +9,14 @@ const stripeInstance = stripe(
 
 export const sessionCheckout = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-  const subscription = await subscriptionModel.findById(id);
-  const totalPrice = subscription.totalPrice;
-  const userName = subscription.userDetails.name;
-  if (subscription.payment == "pending") {
+  const { _id } = req.user;
+  const subscription = await subscriptionModel.find({
+    _id: id,
+    userDetails: _id
+  });
+  const totalPrice = subscription[0].totalPrice;
+  const userName = subscription[0].userDetails.name;
+  if (subscription[0].payment == "pending") {
     let stripeSession = await stripeInstance.checkout.sessions.create({
       line_items: [
         {
