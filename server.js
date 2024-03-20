@@ -8,6 +8,7 @@ import userRouter from "./src/user/user.router.js";
 import tourRouter from "./src/tour/tour.router.js";
 import subscriptionRouter from "./src/subscription/subscription.router.js";
 import paymentRouter from "./src/payment/payment.router.js";
+import testimonialRouter from "./src/testimonial/testimonial.router.js";
 const app = express();
 
 DbConnection;
@@ -20,6 +21,7 @@ app.use("/user", userRouter);
 app.use("/tour", tourRouter);
 app.use("/payment", paymentRouter);
 app.use("/subscription", subscriptionRouter);
+app.use("/testimonial", testimonialRouter);
 
 app.use(customErrorHandler);
 app.listen(process.env.PORT || 3000, (req, res, next) => {
