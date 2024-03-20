@@ -8,6 +8,7 @@ const stripe = new Stripe(
 );
 
 const createSubscription = catchAsyncError(async (req, res, next) => {
+  console.log('hii');
   const { _id } = req.user;
   const { id } = req.params;
   console.log(req.params.id);

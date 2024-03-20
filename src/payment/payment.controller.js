@@ -8,12 +8,9 @@ const stripeInstance = stripe(process.env.STRIPE_SECRET_KEY);
 export const sessionCheckout = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   const { _id } = req.user;
-  const subscription = await subscriptionModel.find({
-    _id: id,
-    userDetails: _id,
-    payment: "pending"
-  });
-  if (subscription) {
+  console.log(_id,id);
+  const subscription = await subscriptionModel.findById( id);
+  if (subscription[0]) {
     const totalPrice = subscription[0].totalPrice;
     const userName = subscription[0].userDetails.name;
     let stripeSession = await stripeInstance.checkout.sessions.create({
