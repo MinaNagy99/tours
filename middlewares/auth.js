@@ -3,6 +3,7 @@ import { AppError } from "../utilities/AppError.js";
 import { catchAsyncError } from "./catchAsyncError.js";
 import jwt, { decode } from "jsonwebtoken";
 export const auth = catchAsyncError(async (req, res, next) => {
+  console.log("from auth middel wate");
   const { token } = req.headers;
   if (!token) return next(new AppError("token nor provider", 401));
   jwt.verify(token, process.env.JWT_SECRET, async function (err, decoded) {

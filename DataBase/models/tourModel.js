@@ -20,8 +20,8 @@ const schema = new Schema({
     }
   ],
   isRepeated: { type: Boolean, default: true },
-  repeatTime: [{ type: Number }],
-  RepeatDays: [
+  repeatTime: [{ type: String }],
+  repeatDays: [
     {
       type: String,
       enum: [
@@ -37,7 +37,7 @@ const schema = new Schema({
   ],
 
   dateDetails: { type: String },
-  lacation: {
+  location: {
     from: { type: String, required: true },
     to: { type: String, required: true }
   },
@@ -46,36 +46,44 @@ const schema = new Schema({
   adultPricing: [
     {
       adults: { type: Number },
-      pricePerPerson: { type: Number },
-      totalPrice: { type: Number }
+      price: { type: Number },
+      totalPrice: {
+        type: Number,
+        default: function () {
+          return this.adults * this.price;
+        }
+      }
     }
   ],
   childrenPricing: [
     {
       children: { type: Number },
-      pricePerPerson: { type: Number },
-      totalPrice: { type: Number }
+      price: { type: Number },
+      totalPrice: {
+        type: Number,
+        default: function () {
+          return this.children * this.price;
+        }
+      }
     }
   ],
   duration: { type: String },
-  subtitle: { type: String },
-
-  tourParticipants: [{ type: Types.ObjectId, ref: "user" }]
+  subtitle: { type: String }
 });
 
-schema.pre("save", function (next) {
-  // Calculate total price for adultPricing
-  this.adultPricing.forEach(adult => {
-    adult.totalPrice = adult.adults * adult.pricePerPerson;
-  });
+// schema.pre("save", function (next) {
+//   // Calculate total price for adultPricing
+//   this.adultPricing.forEach((adult) => {
+//     adult.totalPrice = adult.adults * adult.pricePerPerson;
+//   });
 
-  // Calculate total price for childrenPricing
-  this.childrenPricing.forEach(child => {
-    child.totalPrice = child.children * child.pricePerPerson;
-  });
+//   // Calculate total price for childrenPricing
+//   this.childrenPricing.forEach((child) => {
+//     child.totalPrice = child.children * child.pricePerPerson;
+//   });
 
-  next();
-});
+//   next();
+// });
 
 // schema.pre("find", function () {
 //   this.populate({ path: "createdBy", model: "user" });

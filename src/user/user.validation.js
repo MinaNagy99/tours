@@ -26,5 +26,17 @@ const userSchemaCreate = joi.object({
   nationality: joi.string(),
   phone: joi.number()
 });
+const forgetPasswordSchema = joi.object({
+  email: joi
+    .string()
+    .pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/)
+    .required(),
+  code: joi.number().integer().required(),
+  newPassword: joi
+    .string()
+    .pattern(/^(?=.*[A-Za-z])(?=.*\d).{8,}$/)
+    .required(),
+  reNewPassword: joi.ref("newPassword")
+});
 
-export { userSchemaCreate, userSchemaLogin };
+export { userSchemaCreate, userSchemaLogin, forgetPasswordSchema };

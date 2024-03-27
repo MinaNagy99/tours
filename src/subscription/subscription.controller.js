@@ -8,39 +8,72 @@ const stripe = new Stripe(
 );
 
 const createSubscription = catchAsyncError(async (req, res, next) => {
-  console.log('hii');
   const { _id } = req.user;
   const { id } = req.params;
-  console.log(req.params.id);
-  console.log(req.body.tourId);
-  const tour = await tourModel.findById(req.body.tourId[0]);
-  const { adultPricing, childrenPricing, options } = req.body;
-  req.body.userDetails = _id;
-  req.body.tourDetails = id;
-  req.body.adultPricing = tour.adultPricing.filter((element) => {
-    return element._id == adultPricing;
-  })[0];
-  req.body.childrenPricing = tour.childrenPricing.filter((element) => {
-    return element._id == childrenPricing;
-  })[0];
 
-  req.body.totalPrice =
-    tour.childrenPricing.filter((element) => {
-      return element._id == childrenPricing;
-    })[0].totalPrice +
-    tour.adultPricing.filter((element) => {
-      return element._id == adultPricing;
-    })[0].totalPrice;
+  try {
+    const tour = await tourModel.findById(id);
+    if (!tour) {
+      return res.status(404).json({ message: "Tour not found" });
+    }
 
-  const resultOfSubscription = new subscriptionModel(req.body);
-  // await resultOfSubscription.save(req.body);
-  res.status(200).send({ message: "success", data: tour });
+    const { adultPricing, childrenPricing, options } = req.body;
+    req.body.userDetails = _id;
+    req.body.tourDetails = id;
+
+    const Fethingoptions = await tourModel.aggregate([
+      { $match: { _id: new ObjectId(id) } },
+      { $unwind: "$options" },
+      {
+        $match: {
+          "options._id": { $in: options.map((id) => new ObjectId(id)) }
+        }
+      },
+      { $project: { options: 1 } },
+      {
+        $replaceRoot: { newRoot: "$options" }
+      }
+    ]);
+    const FetchingChildPrice = await tourModel.aggregate([
+      { $match: { _id: new ObjectId(id) } },
+      { $unwind: "$childrenPricing" },
+      {
+        $match: { "childrenPricing._id": new ObjectId(childrenPricing) }
+      },
+      { $project: { childrenPricing: 1, _id: 0 } },
+      { $replaceRoot: { newRoot: "$childrenPricing" } }
+    ]);
+    const FetchingAdultPrice = await tourModel.aggregate([
+      { $match: { _id: new ObjectId(id) } },
+      { $unwind: "$adultPricing" },
+      {
+        $match: { "adultPricing._id": new ObjectId(adultPricing) }
+      },
+      { $project: { adultPricing: 1, _id: 0 } },
+      { $replaceRoot: { newRoot: "$adultPricing" } }
+    ]);
+    // const totalPriceOfOptions = Fethingoptions.map(
+    //   (option) => option.price
+    // ).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+    res.send({
+      children: FetchingChildPrice,
+      adult: FetchingAdultPrice,
+      options: Fethingoptions
+    });
+
+    // Assuming subscriptionModel is your model for subscriptions
+    // const resultOfSubscription = new subscriptionModel(req.body);
+    // await resultOfSubscription.save();
+    // res.status(200).json({ message: "Subscription created successfully", data: resultOfSubscription });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 });
 
 const getAllSubscription = catchAsyncError(async (req, res, next) => {
   const subscription = await subscriptionModel.find();
   res.status(200).send({ message: "success", data: subscription });
 });
-
 
 export { createSubscription, getAllSubscription };

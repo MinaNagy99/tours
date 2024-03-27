@@ -11,6 +11,8 @@ const schema = new Schema(
     avatar: { url: { type: String }, public_id: { type: String } },
     nationality: { type: String, required: true },
     wishList: [{ type: Types.ObjectId, ref: "tour" }],
+    code: { type: Number, length: 4 },
+    confirmedEmail: { type: Boolean, default: false, required: true },
     role: {
       type: String,
       enum: ["user", "admin"],
