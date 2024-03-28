@@ -3,6 +3,7 @@ import subscriptionModel from "../../DataBase/models/subscriptionModel.js";
 import tourModel from "../../DataBase/models/tourModel.js";
 import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
 import Stripe from "stripe";
+import { ApiFeature } from "../../utilities/AppFeature.js";
 const stripe = new Stripe(
   "sk_test_51MoELVIKyDCqLTCrTSGScHAnyU4bkNNxZq6eJJky0t5Uem7zz6uhtjMrS1R3Gw75x2zzYymXFX9WwvyckNKqNGgm00aKssCNvV"
 );
@@ -72,8 +73,20 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
 });
 
 const getAllSubscription = catchAsyncError(async (req, res, next) => {
-  const subscription = await subscriptionModel.find();
-  res.status(200).send({ message: "success", data: subscription });
+  const apiFeature = new ApiFeature(subscriptionModel.find(), req.query)
+    .paginate()
+    .fields()
+    .filter()
+    .sort()
+    .search();
+  const result = await apiFeature.mongoseQuery;
+  if (!result) {
+    return next(new AppError("can't find subscriptions"));
+  }
+
+  res
+    .status(200)
+    .send({ message: "success", data: { page: apiFeature.page, result } });
 });
 
 export { createSubscription, getAllSubscription };
