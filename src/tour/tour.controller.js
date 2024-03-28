@@ -2,6 +2,7 @@ import tourModel from "../../DataBase/models/tourModel.js";
 import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
 import { removeImage } from "../../middlewares/deleteImg.js";
 import { AppError } from "../../utilities/AppError.js";
+import { ApiFeature } from "../../utilities/AppFeature.js";
 
 const createTour = catchAsyncError(async (req, res, next) => {
   const tour = await tourModel.create(req.body);
@@ -40,9 +41,19 @@ const updateTour = catchAsyncError(async (req, res, next) => {
 });
 
 const getAllTour = catchAsyncError(async (req, res, next) => {
-  const tours = await tourModel.find();
-  !tours && next(new AppError("can't find any tour"));
-  res.status(200).send({ message: "success", data: tours });
+  const apiFeature = new ApiFeature(tourModel.find(), req.query)
+    .paginate()
+    .fields()
+    .filter()
+    .sort()
+    .search();
+  const result = await apiFeature.mongoseQuery;
+  if (!result) {
+    return next(new AppError("can't find events"));
+  }
+  res
+    .status(200)
+    .send({ message: "success", data: { page: apiFeature.page, result } });
 });
 const getTourById = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
