@@ -8,6 +8,7 @@ import {
   forgetPassword,
   getAllUsers,
   getUserById,
+  getUserProfile,
   login,
   register,
   removeFromWishList,
@@ -25,6 +26,7 @@ userRouter
   .post(uploadMixfile([{ name: "avatar", maxCount: 1 }]), saveImg, register);
 userRouter.route("/login").post(validation(userSchemaLogin), login);
 userRouter.route("/").get(auth, allowedTo("admin"), getAllUsers);
+userRouter.route("/profile").get(auth, getUserProfile);
 userRouter.route("/authentication").get(auth, authentication);
 userRouter.route("/authorization").get(auth, authorization);
 userRouter.route("/:id").get(allowedTo('admin'), getUserById);

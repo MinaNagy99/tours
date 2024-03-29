@@ -3,7 +3,7 @@ import userModel from "../../DataBase/models/userModel.js";
 import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
 import { removeImage } from "../../middlewares/deleteImg.js";
 import { AppError } from "../../utilities/AppError.js";
-import sendEmail from "../../utilities/Emails/sendEmail.js"
+import sendEmail from "../../utilities/Emails/sendEmail.js";
 const register = catchAsyncError(async (req, res, next) => {
   const { email } = req.body;
   const oldUser = await userModel.findOne({ email });
@@ -128,10 +128,19 @@ const changePassword = catchAsyncError(async (req, res, next) => {
   });
   res.status(200).send({ message: "success", data: "password changed" });
 });
+const getUserProfile = catchAsyncError(async (req, res, next) => {
+  const { _id } = req.user;
+  const user = await userModel.findByIdAndUpdate(_id);
+  if (!user) {
+    return next(new AppError("can't find user"));
+  }
+  res.status(200).send({ message: "success", data: user });
+});
 
 export {
   login,
   register,
+  getUserProfile,
   updateUserProfile,
   getUserById,
   getAllUsers,
