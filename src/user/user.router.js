@@ -27,7 +27,7 @@ userRouter.route("/login").post(validation(userSchemaLogin), login);
 userRouter.route("/").get(auth, allowedTo("admin"), getAllUsers);
 userRouter.route("/authentication").get(auth, authentication);
 userRouter.route("/authorization").get(auth, authorization);
-userRouter.route("/:id").get(getUserById);
+userRouter.route("/:id").get(allowedTo('admin'), getUserById);
 userRouter.route("/addToWishlist/:id").patch(auth, addToWishList);
 userRouter.route("/removeWishlist/:id").patch(auth, removeFromWishList);
 userRouter.route("/changePassword").patch(auth, changePassword);
