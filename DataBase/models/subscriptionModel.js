@@ -21,16 +21,20 @@ const schema = new Schema(
     },
     adultPricing: {
       adults: { type: Number },
-      pricePerPerson: { type: Number }
+      price: { type: Number },
+      totalPrice: { type: Number }
     },
     childrenPricing: {
       children: { type: Number },
-      pricePerPerson: { type: Number }
+      price: { type: Number },
+      totalPrice: { type: Number }
     },
     options: [
       {
         name: { type: String },
-        price: { type: Number }
+        number: { type: Number },
+        price: { type: Number },
+        totalPrice: { type: Number }
       }
     ],
     totalPrice: { type: Number, required: true },
@@ -40,6 +44,11 @@ const schema = new Schema(
 );
 
 schema.pre(/^find/, async function (next) {
+  this.populate("tourDetails");
+  this.populate("userDetails");
+  next();
+});
+schema.pre('save', async function (next) {
   this.populate("tourDetails");
   this.populate("userDetails");
   next();

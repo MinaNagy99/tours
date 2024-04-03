@@ -1,12 +1,11 @@
-import mongoose, { Types } from "mongoose";
 import subscriptionModel from "../../DataBase/models/subscriptionModel.js";
 import tourModel from "../../DataBase/models/tourModel.js";
 import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
 import Stripe from "stripe";
 import { ApiFeature } from "../../utilities/AppFeature.js";
-const stripe = new Stripe(
-  "sk_test_51MoELVIKyDCqLTCrTSGScHAnyU4bkNNxZq6eJJky0t5Uem7zz6uhtjMrS1R3Gw75x2zzYymXFX9WwvyckNKqNGgm00aKssCNvV"
-);
+import { ObjectId } from "mongodb";
+
+
 
 const createSubscription = catchAsyncError(async (req, res, next) => {
   const { _id } = req.user;
@@ -18,16 +17,18 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
       return res.status(404).json({ message: "Tour not found" });
     }
 
-    const { adultPricing, childrenPricing, options } = req.body;
+    let { adultPricing, childrenPricing, options } = req.body;
     req.body.userDetails = _id;
     req.body.tourDetails = id;
 
-    const Fethingoptions = await tourModel.aggregate([
+    let fetchingOptions = await tourModel.aggregate([
       { $match: { _id: new ObjectId(id) } },
       { $unwind: "$options" },
       {
         $match: {
-          "options._id": { $in: options.map((id) => new ObjectId(id)) }
+          "options._id": {
+            $in: options.map((option) => new ObjectId(option.id))
+          }
         }
       },
       { $project: { options: 1 } },
@@ -35,7 +36,8 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
         $replaceRoot: { newRoot: "$options" }
       }
     ]);
-    const FetchingChildPrice = await tourModel.aggregate([
+
+    let fetchingChildren = await tourModel.aggregate([
       { $match: { _id: new ObjectId(id) } },
       { $unwind: "$childrenPricing" },
       {
@@ -44,7 +46,8 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
       { $project: { childrenPricing: 1, _id: 0 } },
       { $replaceRoot: { newRoot: "$childrenPricing" } }
     ]);
-    const FetchingAdultPrice = await tourModel.aggregate([
+
+    let fetchingAdult = await tourModel.aggregate([
       { $match: { _id: new ObjectId(id) } },
       { $unwind: "$adultPricing" },
       {
@@ -53,21 +56,32 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
       { $project: { adultPricing: 1, _id: 0 } },
       { $replaceRoot: { newRoot: "$adultPricing" } }
     ]);
-    // const totalPriceOfOptions = Fethingoptions.map(
-    //   (option) => option.price
-    // ).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-    res.send({
-      children: FetchingChildPrice,
-      adult: FetchingAdultPrice,
-      options: Fethingoptions
-    });
 
-    // Assuming subscriptionModel is your model for subscriptions
-    // const resultOfSubscription = new subscriptionModel(req.body);
-    // await resultOfSubscription.save();
-    // res.status(200).json({ message: "Subscription created successfully", data: resultOfSubscription });
+    let totalPrice = 0;
+    totalPrice = fetchingAdult[0].totalPrice + fetchingChildren[0].totalPrice;
+    console.log(totalPrice);
+    fetchingOptions.forEach((option) => {
+      options.forEach((o) => {
+        if (option._id == o.id) {
+          option.number = o.number;
+          option.totalPrice = option.price * o.number;
+          totalPrice += option.totalPrice;
+        }
+      });
+    });
+    req.body.options = fetchingOptions;
+    req.body.adultPricing = fetchingAdult[0];
+    req.body.childrenPricing = fetchingChildren[0];
+    req.body.totalPrice = totalPrice;
+
+    // Uncomment this section if you want to save the subscription model and return a response
+    const resultOfSubscription = new subscriptionModel(req.body);
+    await resultOfSubscription.save();
+    res.status(200).json({ message: "Subscription created successfully", data: resultOfSubscription });
+
   } catch (error) {
-    console.error("Error:", error);
+    // Handle errors here
+    console.error("Error in createSubscription:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
