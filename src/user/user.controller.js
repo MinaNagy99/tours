@@ -31,7 +31,6 @@ const login = catchAsyncError(async (req, res, next) => {
 });
 
 const getUserById = catchAsyncError(async (req, res, next) => {
-  console.log("dddddd");
   const { id } = req.params;
   const user = await userModel.findById(id);
   !user && next(new AppError("can't find the user"));
@@ -73,7 +72,6 @@ const removeFromWishList = catchAsyncError(async (req, res, next) => {
   res.status(200).send({ message: "success", data: user });
 });
 const authentication = catchAsyncError(async (req, res, next) => {
-  console.log("from Authentication");
   res
     .status(200)
     .send({ message: "success", data: "Authentication successful" });

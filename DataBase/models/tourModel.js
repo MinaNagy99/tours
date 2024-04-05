@@ -16,7 +16,8 @@ const schema = new Schema({
   options: [
     {
       name: { type: String },
-      price: { type: Number }
+      price: { type: Number },
+      childPrice: { type: Number }
     }
   ],
   isRepeated: { type: Boolean, default: true },
@@ -37,6 +38,8 @@ const schema = new Schema({
   ],
 
   dateDetails: { type: String },
+  mapDetails: { type: String },
+  hasOffer: { type: Boolean, default: false },
   location: {
     from: { type: String, required: true },
     to: { type: String, required: true }
@@ -45,8 +48,8 @@ const schema = new Schema({
   exclusions: [{ type: String }],
   adultPricing: [
     {
-      adults: { type: Number },
-      price: { type: Number },
+      adults: { type: Number, required: true },
+      price: { type: Number, required: true },
       totalPrice: {
         type: Number,
         default: function () {
@@ -57,8 +60,8 @@ const schema = new Schema({
   ],
   childrenPricing: [
     {
-      children: { type: Number },
-      price: { type: Number },
+      children: { type: Number, required: true },
+      price: { type: Number, required: true },
       totalPrice: {
         type: Number,
         default: function () {
@@ -71,23 +74,6 @@ const schema = new Schema({
   subtitle: { type: String }
 });
 
-// schema.pre("save", function (next) {
-//   // Calculate total price for adultPricing
-//   this.adultPricing.forEach((adult) => {
-//     adult.totalPrice = adult.adults * adult.pricePerPerson;
-//   });
-
-//   // Calculate total price for childrenPricing
-//   this.childrenPricing.forEach((child) => {
-//     child.totalPrice = child.children * child.pricePerPerson;
-//   });
-
-//   next();
-// });
-
-// schema.pre("find", function () {
-//   this.populate({ path: "createdBy", model: "user" });
-// });
 
 const tourModel = mongoose.model("tour", schema);
 

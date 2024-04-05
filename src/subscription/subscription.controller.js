@@ -1,11 +1,8 @@
 import subscriptionModel from "../../DataBase/models/subscriptionModel.js";
 import tourModel from "../../DataBase/models/tourModel.js";
 import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
-import Stripe from "stripe";
 import { ApiFeature } from "../../utilities/AppFeature.js";
 import { ObjectId } from "mongodb";
-
-
 
 const createSubscription = catchAsyncError(async (req, res, next) => {
   const { _id } = req.user;
@@ -59,12 +56,14 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
 
     let totalPrice = 0;
     totalPrice = fetchingAdult[0].totalPrice + fetchingChildren[0].totalPrice;
-    console.log(totalPrice);
     fetchingOptions.forEach((option) => {
-      options.forEach((o) => {
-        if (option._id == o.id) {
-          option.number = o.number;
-          option.totalPrice = option.price * o.number;
+      options.forEach((inputOption) => {
+        if (option._id == inputOption.id) {
+          option.number = inputOption.number;
+          option.numberOfChildern = inputOption.numberOfChildern;
+          option.totalPrice =
+            option.childPrice * option.numberOfChildern +
+            option.price * option.number;
           totalPrice += option.totalPrice;
         }
       });
@@ -74,11 +73,12 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
     req.body.childrenPricing = fetchingChildren[0];
     req.body.totalPrice = totalPrice;
 
-    // Uncomment this section if you want to save the subscription model and return a response
     const resultOfSubscription = new subscriptionModel(req.body);
     await resultOfSubscription.save();
-    res.status(200).json({ message: "Subscription created successfully", data: resultOfSubscription });
-
+    res.status(200).json({
+      message: "Subscription created successfully",
+      data: resultOfSubscription
+    });
   } catch (error) {
     // Handle errors here
     console.error("Error in createSubscription:", error);

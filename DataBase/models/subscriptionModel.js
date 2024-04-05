@@ -33,6 +33,8 @@ const schema = new Schema(
       {
         name: { type: String },
         number: { type: Number },
+        numberOfChildern: { type: Number },
+        childPrice: { type: Number },
         price: { type: Number },
         totalPrice: { type: Number }
       }
@@ -48,7 +50,7 @@ schema.pre(/^find/, async function (next) {
   this.populate("userDetails");
   next();
 });
-schema.pre('save', async function (next) {
+schema.pre("save", async function (next) {
   this.populate("tourDetails");
   this.populate("userDetails");
   next();
