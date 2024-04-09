@@ -65,7 +65,7 @@ export const createTourSchema = joi.object({
   adultPricing: adultPricing.min(1).required(),
   childrenPricing: childrenPricing,
   duration: joi.string().min(2).max(20),
-  subtitle: joi.string().min(5).max(1000),
+  itinerary: joi.string().min(5).max(1000),
   tags: joi.array().items(joi.string().min(2).max(50))
 });
 
@@ -88,6 +88,6 @@ export const updatedTourSchema = joi.object({
   adultPricing: adultPricing,
   childrenPricing: childrenPricing,
   duration: joi.string().min(2).max(20),
-  subtitle: joi.string().min(5).max(1000),
+  itinerary: joi.string().min(5).max(1000),
   tags: joi.array().items(joi.string().min(2).max(50))
 });
