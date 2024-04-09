@@ -41,7 +41,7 @@ const updateTour = catchAsyncError(async (req, res, next) => {
 });
 
 const getAllTour = catchAsyncError(async (req, res, next) => {
-  const apiFeature = new ApiFeature(tourModel.find({ location: { from: 'Giza', to: 'Pyramids' } }), req.query)
+  const apiFeature = new ApiFeature(tourModel.find(),req.query)
     .paginate()
     .fields()
     .filter()
