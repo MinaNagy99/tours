@@ -31,14 +31,14 @@ export class ApiFeature {
     if (this.queryString.sort) {
       let sortedBy = this.queryString.sort.split(",").join(" ");
       console.log(sortedBy);
-      this.mongooseQuery.sort(sortedBy);
+      this.mongoseQuery.sort(sortedBy);
     }
     return this;
   }
 
   search() {
     if (this.queryString.keyword) {
-      this.mongooseQuery.find({
+      this.mongoseQuery.find({
         $or: [
           { title: { $regex: this.queryString.keyword, $options: "i" } },
           { description: { $regex: this.queryString.keyword, $options: "i" } }
@@ -50,8 +50,10 @@ export class ApiFeature {
 
   fields() {
     if (this.queryString.fields) {
+      console.log("fields");
       let fields = this.queryString.fields.split(",").join(" ");
-      this.mongooseQuery.select(fields);
+      console.log(this.mongoseQuery);
+      this.mongoseQuery.select(fields);
     }
     return this;
   }

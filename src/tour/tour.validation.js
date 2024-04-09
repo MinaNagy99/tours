@@ -52,12 +52,12 @@ export const createTourSchema = joi.object({
   description: joi.string().min(10).max(2000).required(),
   mainImg: imgSchema.required(),
   images: joi.array().items(imgSchema),
+  category: joi.string().hex().length(24).required(),
   options: options,
   isRepeated: joi.boolean(),
   hasOffer: joi.boolean(),
   repeatTime: joi.array().items(joi.string().min(1).max(10)).min(1),
   repeatDays: repeatDays,
-  dateDetails: joi.string().min(5).max(100),
   location: location.required(),
   mapDetails: joi.string(),
   inclusions: joi.array().items(joi.string().min(5).max(100)),
@@ -65,7 +65,8 @@ export const createTourSchema = joi.object({
   adultPricing: adultPricing.min(1).required(),
   childrenPricing: childrenPricing,
   duration: joi.string().min(2).max(20),
-  subtitle: joi.string().min(5).max(1000)
+  subtitle: joi.string().min(5).max(1000),
+  tags: joi.array().items(joi.string().min(2).max(50))
 });
 
 export const updatedTourSchema = joi.object({
@@ -74,12 +75,12 @@ export const updatedTourSchema = joi.object({
   description: joi.string().min(10).max(2000),
   mainImg: imgSchema,
   images: joi.array().items(imgSchema),
+  category: joi.string().hex().length(24),
   options: options,
   isRepeated: joi.boolean(),
   hasOffer: joi.boolean(),
   repeatTime: joi.array().items(joi.string().min(1).max(10)).min(1),
   repeatDays: repeatDays,
-  dateDetails: joi.string().min(5).max(100),
   location: location,
   mapDetails: joi.string(),
   inclusions: joi.array().items(joi.string().min(5).max(100)),
@@ -87,5 +88,6 @@ export const updatedTourSchema = joi.object({
   adultPricing: adultPricing,
   childrenPricing: childrenPricing,
   duration: joi.string().min(2).max(20),
-  subtitle: joi.string().min(5).max(1000)
+  subtitle: joi.string().min(5).max(1000),
+  tags: joi.array().items(joi.string().min(2).max(50))
 });

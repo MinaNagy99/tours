@@ -36,8 +36,8 @@ const schema = new Schema({
       ]
     }
   ],
-
-  dateDetails: { type: String },
+  category: { type: Types.ObjectId, required: true, ref: "category" },
+  tags: [{ type: String, min: 2, max: 50 }],
   mapDetails: { type: String },
   hasOffer: { type: Boolean, default: false },
   location: {
@@ -73,7 +73,6 @@ const schema = new Schema({
   duration: { type: String },
   subtitle: { type: String }
 });
-
 
 const tourModel = mongoose.model("tour", schema);
 
