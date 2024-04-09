@@ -52,7 +52,7 @@ export const createTourSchema = joi.object({
   description: joi.string().min(10).max(2000).required(),
   mainImg: imgSchema.required(),
   images: joi.array().items(imgSchema),
-  category: joi.string().hex().length(24).required(),
+  category: joi.string().required(),
   options: options,
   isRepeated: joi.boolean(),
   hasOffer: joi.boolean(),
@@ -65,7 +65,7 @@ export const createTourSchema = joi.object({
   adultPricing: adultPricing.min(1).required(),
   childrenPricing: childrenPricing,
   duration: joi.string().min(2).max(20),
-  itinerary: joi.string().min(5).max(1000),
+  itinerary: joi.string(),
   tags: joi.array().items(joi.string().min(2).max(50)),
   historyBrief: joi.string().min(2)
 });
@@ -76,7 +76,7 @@ export const updatedTourSchema = joi.object({
   description: joi.string().min(10).max(2000),
   mainImg: imgSchema,
   images: joi.array().items(imgSchema),
-  category: joi.string().hex().length(24),
+  category: joi.string().required(),
   options: options,
   isRepeated: joi.boolean(),
   hasOffer: joi.boolean(),
@@ -89,8 +89,7 @@ export const updatedTourSchema = joi.object({
   adultPricing: adultPricing,
   childrenPricing: childrenPricing,
   duration: joi.string().min(2).max(20),
-  itinerary: joi.string().min(5).max(1000),
+  itinerary: joi.string(),
   tags: joi.array().items(joi.string().min(2).max(50)),
   historyBrief: joi.string().min(2)
-
 });
