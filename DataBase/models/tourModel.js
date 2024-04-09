@@ -71,7 +71,9 @@ const schema = new Schema({
     }
   ],
   duration: { type: String },
-  itinerary: { type: String }
+  itinerary: { type: String },
+  historyBrief:{type:String,min:2}
+
 });
 
 const tourModel = mongoose.model("tour", schema);
