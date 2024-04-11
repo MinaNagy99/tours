@@ -55,15 +55,17 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
     ]);
 
     let totalPrice = 0;
+
     totalPrice = fetchingAdult[0].totalPrice + fetchingChildren[0].totalPrice;
     fetchingOptions.forEach((option) => {
       options.forEach((inputOption) => {
         if (option._id == inputOption.id) {
           option.number = inputOption.number;
-          option.numberOfChildern = inputOption.numberOfChildern;
-          option.totalPrice =
-            option.childPrice * option.numberOfChildern +
-            option.price * option.number;
+          if (option.numberOfChildren) {
+            option.numberOfChildren = inputOption.numberOfChildren;
+            option.totalPrice += option.childPrice * option.numberOfChildren;
+          }
+          option.totalPrice = option.price * option.number;
           totalPrice += option.totalPrice;
         }
       });

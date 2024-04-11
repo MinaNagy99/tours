@@ -33,7 +33,7 @@ const schema = new Schema(
       {
         name: { type: String },
         number: { type: Number },
-        numberOfChildern: { type: Number },
+        numberOfChildren: { type: Number },
         childPrice: { type: Number },
         price: { type: Number },
         totalPrice: { type: Number }
