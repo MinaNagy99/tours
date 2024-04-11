@@ -17,7 +17,9 @@ const schema = new Schema({
     {
       name: { type: String },
       price: { type: Number },
-      childPrice: { type: Number }
+      childPrice: { type: Number,default:function () {
+        return this.price * 0.5;
+      } }
     }
   ],
   isRepeated: { type: Boolean, default: true },
