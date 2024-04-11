@@ -11,6 +11,6 @@ const subscriptionRouter = Router();
 subscriptionRouter
   .route("/:id")
   .post(auth, validation(subscriptionSchema), createSubscription);
-subscriptionRouter.route("/").get(auth, allowedTo("admin"), getAllSubscription);
+subscriptionRouter.route("/").get(auth, getAllSubscription);
 
 export default subscriptionRouter;

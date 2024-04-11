@@ -24,34 +24,34 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
       {
         $match: {
           "options._id": {
-            $in: options.map((option) => new ObjectId(option.id))
-          }
-        }
+            $in: options.map((option) => new ObjectId(option.id)),
+          },
+        },
       },
       { $project: { options: 1 } },
       {
-        $replaceRoot: { newRoot: "$options" }
-      }
+        $replaceRoot: { newRoot: "$options" },
+      },
     ]);
 
     let fetchingChildren = await tourModel.aggregate([
       { $match: { _id: new ObjectId(id) } },
       { $unwind: "$childrenPricing" },
       {
-        $match: { "childrenPricing._id": new ObjectId(childrenPricing) }
+        $match: { "childrenPricing._id": new ObjectId(childrenPricing) },
       },
       { $project: { childrenPricing: 1, _id: 0 } },
-      { $replaceRoot: { newRoot: "$childrenPricing" } }
+      { $replaceRoot: { newRoot: "$childrenPricing" } },
     ]);
 
     let fetchingAdult = await tourModel.aggregate([
       { $match: { _id: new ObjectId(id) } },
       { $unwind: "$adultPricing" },
       {
-        $match: { "adultPricing._id": new ObjectId(adultPricing) }
+        $match: { "adultPricing._id": new ObjectId(adultPricing) },
       },
       { $project: { adultPricing: 1, _id: 0 } },
-      { $replaceRoot: { newRoot: "$adultPricing" } }
+      { $replaceRoot: { newRoot: "$adultPricing" } },
     ]);
 
     let totalPrice = 0;
@@ -77,7 +77,7 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
     await resultOfSubscription.save();
     res.status(200).json({
       message: "Subscription created successfully",
-      data: resultOfSubscription
+      data: resultOfSubscription,
     });
   } catch (error) {
     // Handle errors here
@@ -87,20 +87,42 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
 });
 
 const getAllSubscription = catchAsyncError(async (req, res, next) => {
-  const apiFeature = new ApiFeature(subscriptionModel.find(), req.query)
-    .paginate()
-    .fields()
-    .filter()
-    .sort()
-    .search();
-  const result = await apiFeature.mongoseQuery;
-  if (!result) {
-    return next(new AppError("can't find subscriptions"));
-  }
+  const { role, _id } = req.user;
+  if (role == "user") {
+    const apiFeature = new ApiFeature(
+      subscriptionModel.find({ userDetails: _id }),
+      req.query
+    )
+      .paginate()
+      .fields()
+      .filter()
+      .sort()
+      .search();
+    const result = await apiFeature.mongoseQuery;
+    if (!result) {
+      return next(new AppError("can't find subscriptions"));
+    }
 
-  res
-    .status(200)
-    .send({ message: "success", data: { page: apiFeature.page, result } });
+    res
+      .status(200)
+      .send({ message: "success", data: { page: apiFeature.page, result } });
+  }
+  if (role == "admin") {
+    const apiFeature = new ApiFeature(subscriptionModel.find(), req.query)
+      .paginate()
+      .fields()
+      .filter()
+      .sort()
+      .search();
+    const result = await apiFeature.mongoseQuery;
+    if (!result) {
+      return next(new AppError("can't find subscriptions"));
+    }
+
+    res
+      .status(200)
+      .send({ message: "success", data: { page: apiFeature.page, result } });
+  }
 });
 
 export { createSubscription, getAllSubscription };
