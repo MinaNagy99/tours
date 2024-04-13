@@ -10,33 +10,45 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
   const { _id } = req.user;
   const subscription = await subscriptionModel.findOne({
     _id: id,
-    userDetails: _id
+    userDetails: _id,
   });
 
   if (subscription) {
-    const totalPrice = subscription.totalPrice;
-    const userName = subscription.userDetails.name;
+    const { totalPrice, userDetails, tourDetails } = subscription;
+
     let stripeSession = await stripeInstance.checkout.sessions.create({
       line_items: [
         {
           price_data: {
-            currency: "egp",
+            currency: "USD",
             unit_amount: totalPrice * 100,
             product_data: {
-              name: userName
-            }
+              name: userDetails.userName,
+            },
           },
-          quantity: 1
-        }
+          quantity: 1,
+        },
+        {
+          price_data: {
+            currency: "USD",
+            unit_amount: totalPrice * 100,
+            product_data: {
+              name: tourDetails.title,
+              images: [`${tourDetails.mainImg.url}`],
+            },
+          },
+          quantity: 1,
+        },
       ],
+
       mode: "payment",
       metadata: {
-        subscriptionId: id // Include subscription ID as metadata
+        subscriptionId: id, // Include subscription ID as metadata
       },
 
       // success_url: `bashmohands.onrender.com/api/pay/success?uniqueIdentifier=${uniqueIdentifier}`,
       success_url: `https://tours-b5zy.onrender.com/payment/success`,
-      cancel_url: "https://www.yahoo.com/?guccounter=1"
+      cancel_url: "https://www.yahoo.com/?guccounter=1",
     });
 
     if (!stripeSession)
@@ -53,12 +65,12 @@ export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
   const subscription = await subscriptionModel.findByIdAndUpdate(
     req.subscriptionId,
     {
-      payment: "success"
+      payment: "success",
     }
   );
   res.status(200).send({
     message: "success",
-    data: { message: "subscriptionId", data: subscription }
+    data: { message: "subscriptionId", data: subscription },
   });
 });
 
