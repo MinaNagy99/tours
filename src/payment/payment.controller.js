@@ -14,37 +14,66 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
   });
 
   if (subscription) {
-    const { totalPrice, userDetails, tourDetails } = subscription;
+    const {
+      totalPrice,
+      userDetails,
+      tourDetails,
+      options,
+      adultPricing,
+      childrenPricing,
+    } = subscription;
+
+    let line_items = [];
+    line_items.push({
+      price_data: {
+        currency: "USD",
+        unit_amount: adultPricing.totalPrice * 100,
+        product_data: {
+          name: `Adult`,
+          images: ["https://cdn-icons-png.freepik.com/512/3787/3787951.png"],
+        },
+      },
+      quantity: adultPricing.adults,
+    });
+    if (childrenPricing) {
+      line_items.push({
+        price_data: {
+          currency: "USD",
+          unit_amount: childrenPricing.totalPrice * 100,
+          product_data: {
+            name: "Child",
+            images: [
+              "https://toppng.com/uploads/preview/children-icon-png-11552333579xtroc64zmd.png",
+            ],
+          },
+        },
+        quantity: childrenPricing.children,
+      });
+    }
+    if (options) {
+      options.forEach((option) => {
+        line_items.push({
+          price_data: {
+            currency: "USD",
+            unit_amount: option.totalPrice * 100,
+            product_data: {
+              name: option.name,
+              images: [
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjIieaF9GiSBIqCSzhrBCyzLELknPW4SLziBBZ5yXuAw&s",
+              ],
+            },
+          },
+          quantity: 1,
+        });
+      });
+    }
 
     let stripeSession = await stripeInstance.checkout.sessions.create({
-      line_items: [
-        {
-          price_data: {
-            currency: "USD",
-            unit_amount: totalPrice * 100,
-            product_data: {
-              name: userDetails.userName,
-            },
-          },
-          quantity: 1,
-        },
-        {
-          price_data: {
-            currency: "USD",
-            unit_amount: totalPrice * 100,
-            product_data: {
-              name: tourDetails.title,
-              images: [`${tourDetails.mainImg.url}`],
-            },
-          },
-          quantity: 1,
-        },
-      ],
-
-      mode: "payment",
+      line_items,
       metadata: {
-        subscriptionId: id, // Include subscription ID as metadata
+        description: "customsadsadasdasder",
       },
+      mode: "payment",
 
       // success_url: `bashmohands.onrender.com/api/pay/success?uniqueIdentifier=${uniqueIdentifier}`,
       success_url: `https://tours-b5zy.onrender.com/payment/success`,
@@ -54,7 +83,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
     if (!stripeSession)
       return next(new AppError("Payment Failed, please try again!", 500));
 
-    res.json({ redirectTo: stripeSession.url });
+    res.json({ redirectTo: stripeSession.url, data: stripeSession });
   } else {
     next(new AppError("can't find the subscription"));
   }

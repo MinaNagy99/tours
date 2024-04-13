@@ -2,7 +2,7 @@ import joi from "joi";
 export const subscriptionSchema = joi.object({
   id: joi.string().hex().length(24).required(),
   adultPricing: joi.string().hex().length(24).required(),
-  childrenPricing: joi.string().hex().length(24).required(),
+  childrenPricing: joi.string().hex().length(24),
   time: joi.string(),
   date: joi.string(),
   day: joi
