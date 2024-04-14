@@ -84,50 +84,11 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
 });
 
 export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
-  console.log(`from handle success payment: ${req.subscriptionId}`);
-  const subscription = await subscriptionModel.findByIdAndUpdate(
-    req.subscriptionId,
-    {
-      payment: "success",
-    }
-  );
+  const subscription = await subscriptionModel.find();
   res.status(200).send({
     message: "success",
     data: { message: "subscriptionId", data: subscription },
   });
-});
-
-export const webhook = catchAsyncError(async (req, res, next) => {
-  try {
-    const event = req.body; // Assuming Stripe sends the webhook payload in the request body
-    console.log("Received event:", event);
-
-    // Process event based on its type
-    switch (event.type) {
-      case "checkout.session.async_payment_succeeded":
-        const checkoutSessionAsyncPaymentSucceeded = event.data.object;
-        console.log(
-          `from webhook this is checkoutSessionAsync : ${checkoutSessionAsyncPaymentSucceeded}`
-        );
-
-        // Extract metadata from the event
-        const metadata = checkoutSessionAsyncPaymentSucceeded.metadata;
-        console.log(`from webhook this is metadata : ${metadata}`);
-
-        // Set the subscription ID in the request object to be used later
-        req.subscriptionId = metadata.subscriptionId;
-        break;
-      // Handle other event types if needed
-      default:
-        console.log(`Unhandled event type ${event.type}`);
-    }
-
-    next();
-  } catch (err) {
-    // Return an error response if the signature is invalid or the event is malformed
-    console.error("Error verifying webhook signature:", err.message);
-    return res.sendStatus(400);
-  }
 });
 
 export const handelPassCheckout = catchAsyncError(async (req, res) => {
@@ -150,8 +111,10 @@ export const handelPassCheckout = catchAsyncError(async (req, res) => {
   // Handle the event
   switch (event.type) {
     case "checkout.session.async_payment_succeeded":
-      const session = event.data.object;
-      // Handle successful payment
+      const { metadata } = event.data.object;
+      await subscriptionModel.findByIdAndUpdate(metadata.subscriptionId, {
+        payment: "success",
+      });
       console.log("Payment succeeded:", session);
       break;
     // Add more cases to handle other types of events as needed

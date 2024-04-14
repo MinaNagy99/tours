@@ -50,7 +50,7 @@ schema.pre(/^find/, async function (next) {
     path: 'tourDetails',
     select: 'mainImg title description' // Specify the fields you want to include
   });
-  this.populate({path:"userDetails",select:"avatar name email -wishList"});
+  this.populate({path:"userDetails",select:"avatar name email nationality -wishList"});
   next();
 });
 schema.pre("save", async function (next) {
