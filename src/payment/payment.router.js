@@ -9,5 +9,5 @@ const paymentRouter = express.Router();
 
 paymentRouter.post("/checkout-session/:id", auth, sessionCheckout);
 paymentRouter.post("/handelPassCheckout", handelPassCheckout);
-paymentRouter.get("/success", handleSuccessPayment);
+paymentRouter.get("/handelPassCheckout", handleSuccessPayment);
 export default paymentRouter;

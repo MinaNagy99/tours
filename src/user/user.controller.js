@@ -33,7 +33,9 @@ const login = catchAsyncError(async (req, res, next) => {
 const getUserById = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   const user = await userModel.findById(id);
-  !user && next(new AppError("can't find the user"));
+  if (!user) {
+    return next(new AppError("can't find user"));
+  }
   res.status(200).send({ message: "success", data: user });
 });
 
@@ -50,7 +52,7 @@ const addToWishList = catchAsyncError(async (req, res, next) => {
   const user = await userModel.findByIdAndUpdate(
     _id,
     {
-      $addToSet: { wishList: id } // Corrected field name to wishList
+      $addToSet: { wishList: id }, // Corrected field name to wishList
     },
     { new: true }
   );
@@ -64,7 +66,7 @@ const removeFromWishList = catchAsyncError(async (req, res, next) => {
   const user = await userModel.findByIdAndUpdate(
     _id,
     {
-      $pull: { wishList: id }
+      $pull: { wishList: id },
     },
     { new: true }
   );
@@ -122,13 +124,13 @@ const changePassword = catchAsyncError(async (req, res, next) => {
     return next(new AppError("incorrect password"));
   }
   await userModel.findByIdAndUpdate(_id, {
-    password: await hash(newPassword, 10)
+    password: await hash(newPassword, 10),
   });
   res.status(200).send({ message: "success", data: "password changed" });
 });
 const getUserProfile = catchAsyncError(async (req, res, next) => {
   const { _id } = req.user;
-  const user = await userModel.findByIdAndUpdate(_id);
+  const user = await userModel.findById(_id);
   if (!user) {
     return next(new AppError("can't find user"));
   }
@@ -149,5 +151,5 @@ export {
   checkCode,
   forgetPassword,
   authentication,
-  authorization
+  authorization,
 };
