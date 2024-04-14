@@ -46,8 +46,11 @@ const schema = new Schema(
 );
 
 schema.pre(/^find/, async function (next) {
-  this.populate("tourDetails");
-  this.populate("userDetails");
+  this.populate({
+    path: 'tourDetails',
+    select: 'mainImg title description' // Specify the fields you want to include
+  });
+  this.populate({path:"userDetails",select:"avatar name email -wishList"});
   next();
 });
 schema.pre("save", async function (next) {
