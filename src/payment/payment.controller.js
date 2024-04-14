@@ -2,6 +2,7 @@ import stripe from "stripe";
 import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
 import { AppError } from "../../utilities/AppError.js";
 import subscriptionModel from "../../DataBase/models/subscriptionModel.js";
+import { text } from "express";
 
 const stripeInstance = stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -74,7 +75,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
         description: "customsadsadasdasder",
       },
       mode: "payment",
-
+    
       // success_url: `bashmohands.onrender.com/api/pay/success?uniqueIdentifier=${uniqueIdentifier}`,
       success_url: `https://tours-b5zy.onrender.com/payment/success`,
       cancel_url: "https://www.yahoo.com/?guccounter=1",
