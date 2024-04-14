@@ -70,7 +70,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
       mode: "payment",
 
       // success_url: `bashmohands.onrender.com/api/pay/success?uniqueIdentifier=${uniqueIdentifier}`,
-      success_url: `https://tours-b5zy.onrender.com/payment/success`,
+      success_url: `https://tours-b5zy.onrender.com/payment/handelPassCheckout`,
       cancel_url: "https://www.yahoo.com/?guccounter=1",
     });
 
