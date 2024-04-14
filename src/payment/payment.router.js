@@ -8,5 +8,6 @@ import {
 const paymentRouter = express.Router();
 
 paymentRouter.post("/checkout-session/:id", auth, sessionCheckout);
-paymentRouter.get("/success", webhook, handleSuccessPayment);
+paymentRouter.post("/webhook", webhook); // Endpoint to receive webhook events from Stripe
+paymentRouter.get("/success", handleSuccessPayment); // Route to handle successful payment
 export default paymentRouter;

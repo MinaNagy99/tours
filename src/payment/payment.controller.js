@@ -84,7 +84,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
 });
 
 export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
-  console.log(`from handel success payment : ${req.subscriptionId}`);
+  console.log(`from handle success payment: ${req.subscriptionId}`);
   const subscription = await subscriptionModel.findByIdAndUpdate(
     req.subscriptionId,
     {
@@ -99,31 +99,28 @@ export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
 
 export const webhook = catchAsyncError(async (req, res, next) => {
   try {
-    res.send(req);
-    const webhookEndpoint = await stripe.webhookEndpoints.retrieve(
-      "we_1Mr5jULkdIwHu7ix1ibLTM0x"
-    );
-    // Handle the event
-    console.log("Received event:");
+    const event = req.body; // Assuming Stripe sends the webhook payload in the request body
+    console.log("Received event:", event);
 
     // Process event based on its type
-    // switch (event.type) {
-    //   case "checkout.session.async_payment_succeeded":
-    //     const checkoutSessionAsyncPaymentSucceeded = event.data.object;
-    //     console.log(
-    //       `from webhook this is checkoutSessionAsync : ${checkoutSessionAsyncPaymentSucceeded}`
-    //     );
+    switch (event.type) {
+      case "checkout.session.async_payment_succeeded":
+        const checkoutSessionAsyncPaymentSucceeded = event.data.object;
+        console.log(
+          `from webhook this is checkoutSessionAsync : ${checkoutSessionAsyncPaymentSucceeded}`
+        );
 
-    //     // Then define and call a function to handle the event checkout.session.async_payment_succeeded
-    //     const metadata = checkoutSessionAsyncPaymentSucceeded.metadata;
-    //     console.log(`from webhook this is metadata : ${metadata}`);
+        // Extract metadata from the event
+        const metadata = checkoutSessionAsyncPaymentSucceeded.metadata;
+        console.log(`from webhook this is metadata : ${metadata}`);
 
-    //     req.subscriptionId = metadata.subscriptionId;
-    //     break;
-    //   // ... handle other event types
-    //   default:
-    //     console.log(`Unhandled event type ${event.type}`);
-    // }
+        // Set the subscription ID in the request object to be used later
+        req.subscriptionId = metadata.subscriptionId;
+        break;
+      // Handle other event types if needed
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
 
     next();
   } catch (err) {
@@ -132,3 +129,5 @@ export const webhook = catchAsyncError(async (req, res, next) => {
     return res.sendStatus(400);
   }
 });
+
+
