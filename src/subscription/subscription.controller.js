@@ -130,7 +130,10 @@ const getAllSubscription = catchAsyncError(async (req, res, next) => {
 
 const getSubscriptionById = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-  const subscription = await subscriptionModel.findById(id);
+  const subscription = new ApiFeature(
+    subscriptionModel.findById(id),
+    req.query
+  ).fields();
   if (!subscription) {
     return next(new AppError("can't find subscription"));
   }
