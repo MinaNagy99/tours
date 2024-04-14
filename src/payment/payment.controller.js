@@ -130,4 +130,36 @@ export const webhook = catchAsyncError(async (req, res, next) => {
   }
 });
 
+export const handelPassCheckout = catchAsyncError(async (req, res) => {
+  // Your webhook handling logic here
 
+  const sig = req.headers["stripe-signature"];
+  let event;
+
+  try {
+    event = await stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      "whsec_gAiAQSM4GkVKasyfasQu6voR0miuHo2r"
+    );
+  } catch (err) {
+    console.error("Webhook error:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the event
+  switch (event.type) {
+    case "checkout.session.async_payment_succeeded":
+      const session = event.data.object;
+      // Handle successful payment
+      console.log("Payment succeeded:", session);
+      break;
+    // Add more cases to handle other types of events as needed
+    default:
+      // Unexpected event type
+      console.warn(`Unhandled event type: ${event.type}`);
+  }
+
+  // Return a response to acknowledge receipt of the event
+  res.json({ received: true });
+});
