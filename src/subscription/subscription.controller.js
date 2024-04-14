@@ -131,7 +131,7 @@ const getAllSubscription = catchAsyncError(async (req, res, next) => {
 const getSubscriptionById = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   const subscription = await subscriptionModel.findById(id);
-  if (subscription) {
+  if (!subscription) {
     return next(new AppError("can't find subscription"));
   }
   res.status(200).send({ message: "success", data: subscription });
