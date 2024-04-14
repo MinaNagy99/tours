@@ -15,14 +15,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
   });
 
   if (subscription) {
-    const {
-      totalPrice,
-      userDetails,
-      tourDetails,
-      options,
-      adultPricing,
-      childrenPricing,
-    } = subscription;
+    const { options, adultPricing, childrenPricing } = subscription;
 
     let line_items = [];
     line_items.push({
@@ -72,10 +65,10 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
     let stripeSession = await stripeInstance.checkout.sessions.create({
       line_items,
       metadata: {
-        description: "customsadsadasdasder",
+        subscriptionId: req.params.id,
       },
       mode: "payment",
-    
+
       // success_url: `bashmohands.onrender.com/api/pay/success?uniqueIdentifier=${uniqueIdentifier}`,
       success_url: `https://tours-b5zy.onrender.com/payment/success`,
       cancel_url: "https://www.yahoo.com/?guccounter=1",
