@@ -98,35 +98,32 @@ export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
 });
 
 export const webhook = catchAsyncError(async (req, res, next) => {
-  const sig = req.headers["stripe-signature"];
-
   try {
-    const event = await stripe.webhooks.constructEvent(
-      req.body,
-      sig,
-      "your_webhook_secret"
+    res.send(req);
+    const webhookEndpoint = await stripe.webhookEndpoints.retrieve(
+      "we_1Mr5jULkdIwHu7ix1ibLTM0x"
     );
     // Handle the event
-    console.log("Received event:", event.type);
+    console.log("Received event:");
 
     // Process event based on its type
-    switch (event.type) {
-      case "checkout.session.async_payment_succeeded":
-        const checkoutSessionAsyncPaymentSucceeded = event.data.object;
-        console.log(
-          `from webhook this is checkoutSessionAsync : ${checkoutSessionAsyncPaymentSucceeded}`
-        );
+    // switch (event.type) {
+    //   case "checkout.session.async_payment_succeeded":
+    //     const checkoutSessionAsyncPaymentSucceeded = event.data.object;
+    //     console.log(
+    //       `from webhook this is checkoutSessionAsync : ${checkoutSessionAsyncPaymentSucceeded}`
+    //     );
 
-        // Then define and call a function to handle the event checkout.session.async_payment_succeeded
-        const metadata = checkoutSessionAsyncPaymentSucceeded.metadata;
-        console.log(`from webhook this is metadata : ${metadata}`);
+    //     // Then define and call a function to handle the event checkout.session.async_payment_succeeded
+    //     const metadata = checkoutSessionAsyncPaymentSucceeded.metadata;
+    //     console.log(`from webhook this is metadata : ${metadata}`);
 
-        req.subscriptionId = metadata.subscriptionId;
-        break;
-      // ... handle other event types
-      default:
-        console.log(`Unhandled event type ${event.type}`);
-    }
+    //     req.subscriptionId = metadata.subscriptionId;
+    //     break;
+    //   // ... handle other event types
+    //   default:
+    //     console.log(`Unhandled event type ${event.type}`);
+    // }
 
     next();
   } catch (err) {
