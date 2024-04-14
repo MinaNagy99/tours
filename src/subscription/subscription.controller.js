@@ -130,14 +130,17 @@ const getAllSubscription = catchAsyncError(async (req, res, next) => {
 
 const getSubscriptionById = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-  const subscription = new ApiFeature(
-    subscriptionModel.findById(id),
-    req.query
-  ).fields();
-  if (!subscription) {
+  const apiFeature = new ApiFeature(subscriptionModel.findById(id), req.query)
+    .paginate()
+    .fields()
+    .filter()
+    .sort()
+    .search();
+  const result = await apiFeature.mongoseQuery;
+  if (!result) {
     return next(new AppError("can't find subscription"));
   }
-  res.status(200).send({ message: "success", data: subscription });
+  res.status(200).send({ message: "success", data: result });
 });
 
 export { createSubscription, getAllSubscription, getSubscriptionById };

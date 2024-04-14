@@ -23,7 +23,6 @@ export class ApiFeature {
     filterobj = JSON.stringify(filterobj);
     filterobj = filterobj.replace(/\b(gt|gte|lt|lte)\b/g, (math) => `$${math}`);
     filterobj = JSON.parse(filterobj);
-    console.log(filterobj);
     this.mongoseQuery.find(filterobj);
 
     return this;
@@ -50,9 +49,7 @@ export class ApiFeature {
 
   fields() {
     if (this.queryString.fields) {
-      console.log("fields");
       let fields = this.queryString.fields.split(",").join(" ");
-      console.log(this.mongoseQuery);
       this.mongoseQuery.select(fields);
     }
     return this;
