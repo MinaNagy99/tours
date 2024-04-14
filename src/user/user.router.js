@@ -12,7 +12,7 @@ import {
   login,
   register,
   removeFromWishList,
-  sendCode
+  sendCode,
 } from "./user.controller.js";
 import { forgetPasswordSchema, userSchemaLogin } from "./user.validation.js";
 import { allowedTo, auth } from "../../middlewares/auth.js";
@@ -29,7 +29,7 @@ userRouter.route("/").get(auth, allowedTo("admin"), getAllUsers);
 userRouter.route("/profile").get(auth, getUserProfile);
 userRouter.route("/authentication").get(auth, authentication);
 userRouter.route("/authorization").get(auth, authorization);
-userRouter.route("/:id").get(allowedTo('admin'), getUserById);
+userRouter.route("/:id").get(auth, allowedTo("admin"), getUserById);
 userRouter.route("/addToWishlist/:id").patch(auth, addToWishList);
 userRouter.route("/removeWishlist/:id").patch(auth, removeFromWishList);
 userRouter.route("/changePassword").patch(auth, changePassword);
