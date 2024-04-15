@@ -20,7 +20,7 @@ const deleteTour = catchAsyncError(async (req, res, next) => {
   console.log("delete tour");
   removeImage(tour.mainImg.Public_id);
   tour.images.forEach((img) => {
-    removeImage(img.Public_id);
+    removeImage(img.public_id);
   });
   res.status(200).send({ message: "success" });
 });
