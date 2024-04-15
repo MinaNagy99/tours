@@ -5,6 +5,7 @@ import { AppError } from "../../utilities/AppError.js";
 import { ApiFeature } from "../../utilities/AppFeature.js";
 
 const createTour = catchAsyncError(async (req, res, next) => {
+ 
   const tour = await tourModel.create(req.body);
 
   !tour && next(new AppError("can't create tour"));
@@ -41,7 +42,7 @@ const updateTour = catchAsyncError(async (req, res, next) => {
 });
 
 const getAllTour = catchAsyncError(async (req, res, next) => {
-  const apiFeature = new ApiFeature(tourModel.find(),req.query)
+  const apiFeature = new ApiFeature(tourModel.find(), req.query)
     .paginate()
     .fields()
     .filter()
@@ -77,5 +78,5 @@ export {
   getTourById,
   deleteTour,
   updateTour,
-  deleteAllTour
+  deleteAllTour,
 };

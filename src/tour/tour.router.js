@@ -15,7 +15,7 @@ tourRouter
     allowedTo("admin"),
     uploadMixfile([
       { name: "mainImg", maxCount: 1 },
-      { name: "images", maxCount: 5 }
+      { name: "images", maxCount: 10 }
     ]),
     saveImg,
     validation(createTourSchema),
