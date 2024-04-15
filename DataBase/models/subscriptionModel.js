@@ -1,6 +1,5 @@
 import mongoose, { Model, Schema, Types } from "mongoose";
-import { hash, compare } from "bcrypt";
-import jwt from "jsonwebtoken";
+
 const schema = new Schema(
   {
     tourDetails: { type: Types.ObjectId, required: true, ref: "tour" },

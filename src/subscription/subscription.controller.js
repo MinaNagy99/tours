@@ -18,7 +18,7 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
     let { adultPricing, childrenPricing, options } = req.body;
     req.body.userDetails = _id;
     req.body.tourDetails = id;
-
+    let totalPrice = 0;
     let fetchingOptions = await tourModel.aggregate([
       { $match: { _id: new ObjectId(id) } },
       { $unwind: "$options" },
@@ -35,16 +35,6 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
       },
     ]);
 
-    let fetchingChildren = await tourModel.aggregate([
-      { $match: { _id: new ObjectId(id) } },
-      { $unwind: "$childrenPricing" },
-      {
-        $match: { "childrenPricing._id": new ObjectId(childrenPricing) },
-      },
-      { $project: { childrenPricing: 1, _id: 0 } },
-      { $replaceRoot: { newRoot: "$childrenPricing" } },
-    ]);
-
     let fetchingAdult = await tourModel.aggregate([
       { $match: { _id: new ObjectId(id) } },
       { $unwind: "$adultPricing" },
@@ -55,9 +45,20 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
       { $replaceRoot: { newRoot: "$adultPricing" } },
     ]);
 
-    let totalPrice = 0;
-
-    totalPrice = fetchingAdult[0].totalPrice + fetchingChildren[0].totalPrice;
+    totalPrice = fetchingAdult[0].totalPrice;
+    if (childrenPricing) {
+      let fetchingChildren = await tourModel.aggregate([
+        { $match: { _id: new ObjectId(id) } },
+        { $unwind: "$childrenPricing" },
+        {
+          $match: { "childrenPricing._id": new ObjectId(childrenPricing) },
+        },
+        { $project: { childrenPricing: 1, _id: 0 } },
+        { $replaceRoot: { newRoot: "$childrenPricing" } },
+      ]);
+      req.body.childrenPricing = fetchingChildren[0];
+      totalPrice += fetchingChildren[0].totalPrice;
+    }
     fetchingOptions.forEach((option) => {
       options.forEach((inputOption) => {
         if (option._id == inputOption.id) {
@@ -73,7 +74,7 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
     });
     req.body.options = fetchingOptions;
     req.body.adultPricing = fetchingAdult[0];
-    req.body.childrenPricing = fetchingChildren[0];
+
     req.body.totalPrice = totalPrice;
 
     const resultOfSubscription = new subscriptionModel(req.body);
