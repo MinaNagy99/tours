@@ -20,7 +20,7 @@ export const subscriptionSchema = joi.object({
     joi.object({
       id: joi.string().hex().length(24),
       number: joi.number().min(1).max(500),
-      numberOfChildren: joi.number().min(1).max(500)
+      numberOfChildren: joi.number()
     })
   )
 });

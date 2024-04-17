@@ -9,14 +9,13 @@ const stripeInstance = stripe(process.env.STRIPE_SECRET_KEY);
 export const sessionCheckout = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   const { _id } = req.user;
-  const subscription = await subscriptionModel.findOne({
+  let subscription = await subscriptionModel.findOne({
     _id: id,
     userDetails: _id,
   });
 
   if (subscription) {
-    const { options, adultPricing, childrenPricing } = subscription;
-
+    let { options, adultPricing, childrenPricing } = subscription;
     let line_items = [];
     line_items.push({
       price_data: {
@@ -29,7 +28,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
       },
       quantity: adultPricing.adults,
     });
-    if (childrenPricing) {
+    if (childrenPricing =! {}) {
       line_items.push({
         price_data: {
           currency: "USD",
@@ -77,7 +76,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
     if (!stripeSession)
       return next(new AppError("Payment Failed, please try again!", 500));
 
-    res.json({ redirectTo: stripeSession.url, data: stripeSession });
+    res.json({ redirectTo: stripeSession.url, data: subscription });
   } else {
     next(new AppError("can't find the subscription"));
   }
