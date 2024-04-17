@@ -19,22 +19,6 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
     req.body.userDetails = _id;
     req.body.tourDetails = id;
     let totalPrice = 0;
-    let fetchingOptions = await tourModel.aggregate([
-      { $match: { _id: new ObjectId(id) } },
-      { $unwind: "$options" },
-      {
-        $match: {
-          "options._id": {
-            $in: options.map((option) => new ObjectId(option.id)),
-          },
-        },
-      },
-      { $project: { options: 1 } },
-      {
-        $replaceRoot: { newRoot: "$options" },
-      },
-    ]);
-
     let fetchingAdult = await tourModel.aggregate([
       { $match: { _id: new ObjectId(id) } },
       { $unwind: "$adultPricing" },
@@ -44,8 +28,9 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
       { $project: { adultPricing: 1, _id: 0 } },
       { $replaceRoot: { newRoot: "$adultPricing" } },
     ]);
-
     totalPrice = fetchingAdult[0].totalPrice;
+
+    req.body.adultPricing = fetchingAdult[0];
     if (childrenPricing) {
       let fetchingChildren = await tourModel.aggregate([
         { $match: { _id: new ObjectId(id) } },
@@ -59,21 +44,37 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
       req.body.childrenPricing = fetchingChildren[0];
       totalPrice += fetchingChildren[0].totalPrice;
     }
-    fetchingOptions.forEach((option) => {
-      options.forEach((inputOption) => {
-        if (option._id == inputOption.id) {
-          option.number = inputOption.number;
-          if (option.numberOfChildren) {
-            option.numberOfChildren = inputOption.numberOfChildren;
-            option.totalPrice += option.childPrice * option.numberOfChildren;
+    if (options) {
+      let fetchingOptions = await tourModel.aggregate([
+        { $match: { _id: new ObjectId(id) } },
+        { $unwind: "$options" },
+        {
+          $match: {
+            "options._id": {
+              $in: options.map((option) => new ObjectId(option.id)),
+            },
+          },
+        },
+        { $project: { options: 1 } },
+        {
+          $replaceRoot: { newRoot: "$options" },
+        },
+      ]);
+      fetchingOptions.forEach((option) => {
+        options.forEach((inputOption) => {
+          if (option._id == inputOption.id) {
+            option.number = inputOption.number;
+            if (option.numberOfChildren) {
+              option.numberOfChildren = inputOption.numberOfChildren;
+              option.totalPrice += option.childPrice * option.numberOfChildren;
+            }
+            option.totalPrice = option.price * option.number;
+            totalPrice += option.totalPrice;
           }
-          option.totalPrice = option.price * option.number;
-          totalPrice += option.totalPrice;
-        }
+        });
       });
-    });
-    req.body.options = fetchingOptions;
-    req.body.adultPricing = fetchingAdult[0];
+      req.body.options = fetchingOptions;
+    }
 
     req.body.totalPrice = totalPrice;
 
