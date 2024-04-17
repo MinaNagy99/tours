@@ -2,7 +2,6 @@ import stripe from "stripe";
 import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
 import { AppError } from "../../utilities/AppError.js";
 import subscriptionModel from "../../DataBase/models/subscriptionModel.js";
-import { text } from "express";
 
 const stripeInstance = stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -28,7 +27,8 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
       },
       quantity: adultPricing.adults,
     });
-    if (childrenPricing =! {}) {
+    if (childrenPricing == true) {
+      console.log("from children");
       line_items.push({
         price_data: {
           currency: "USD",
@@ -63,11 +63,12 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
 
     let stripeSession = await stripeInstance.checkout.sessions.create({
       line_items,
+
       metadata: {
         subscriptionId: req.params.id,
       },
       mode: "payment",
-
+      customer_email: req.user.email,
       // success_url: `bashmohands.onrender.com/api/pay/success?uniqueIdentifier=${uniqueIdentifier}`,
       success_url: `https://tours-b5zy.onrender.com/payment/handelPassCheckout`,
       cancel_url: "https://www.yahoo.com/?guccounter=1",
