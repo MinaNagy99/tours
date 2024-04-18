@@ -84,11 +84,12 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
 });
 
 export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
-  const subscription = await subscriptionModel.find();
-  res.status(200).send({
-    message: "success",
-    data: { message: "subscriptionId", data: subscription },
-  });
+  res.status(200).send(req);
+  // const subscription = await subscriptionModel.find();
+  // res.status(200).send({
+  //   message: "success",
+  //   data: { message: "subscriptionId", data: subscription },
+  // });
 });
 
 export const handelPassCheckout = catchAsyncError(async (req, res) => {
