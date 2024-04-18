@@ -22,7 +22,28 @@ app.use("/tour", tourRouter);
 app.use("/payment", paymentRouter);
 app.use("/subscription", subscriptionRouter);
 app.use("/testimonial", testimonialRouter);
+app.post("/webhook", (req, res) => {
+  const event = req.body;
+  console.log("event form /webhook", event);
+  switch (event.type) {
+    case "payment_intent.succeeded":
+      const paymentIntent = event.data.object;
+      // Then define and call a method to handle the successful payment intent.
+      // handlePaymentIntentSucceeded(paymentIntent);
+      break;
+    case "payment_method.attached":
+      const paymentMethod = event.data.object;
+      // Then define and call a method to handle the successful attachment of a PaymentMethod.
+      // handlePaymentMethodAttached(paymentMethod);
+      break;
+    // ... handle other event types
+    default:
+      console.log(`Unhandled event type ${event.type}`);
+  }
 
+  // Return a response to acknowledge receipt of the event
+  response.json({ received: true });
+});
 app.use(customErrorHandler);
 app.listen(process.env.PORT || 3000, (req, res, next) => {
   console.log("server is running");
