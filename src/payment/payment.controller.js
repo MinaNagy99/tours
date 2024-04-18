@@ -15,6 +15,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
 
   if (subscription) {
     let { options, adultPricing, childrenPricing } = subscription;
+    console.log(childrenPricing);
     let line_items = [];
     line_items.push({
       price_data: {
@@ -27,8 +28,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
       },
       quantity: adultPricing.adults,
     });
-    if (childrenPricing == true) {
-      console.log("from children");
+    if (childrenPricing.totalPrice > 0) {
       line_items.push({
         price_data: {
           currency: "USD",
