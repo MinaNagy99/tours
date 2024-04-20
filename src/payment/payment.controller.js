@@ -101,6 +101,8 @@ export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
       { payment: "success" },
       { new: true }
     );
-    res.status(200).send({ subscription });
+    res
+      .status(200)
+      .send({ message: "payment successfully", data: subscription });
   });
 });
