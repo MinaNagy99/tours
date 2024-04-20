@@ -19,18 +19,24 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
     req.body.userDetails = _id;
     req.body.tourDetails = id;
     let totalPrice = 0;
-    let fetchingAdult = await tourModel.aggregate([
-      { $match: { _id: new ObjectId(id) } },
-      { $unwind: "$adultPricing" },
-      {
-        $match: { "adultPricing._id": new ObjectId(adultPricing) },
-      },
-      { $project: { adultPricing: 1, _id: 0 } },
-      { $replaceRoot: { newRoot: "$adultPricing" } },
-    ]);
-    totalPrice = fetchingAdult[0].totalPrice;
+    if (adultPricing) {
+      let fetchingAdult = await tourModel.aggregate([
+        { $match: { _id: new ObjectId(id) } },
+        { $unwind: "$adultPricing" },
+        {
+          $match: { "adultPricing._id": new ObjectId(adultPricing) },
+        },
+        { $project: { adultPricing: 1, _id: 0 } },
+        { $replaceRoot: { newRoot: "$adultPricing" } },
+      ]);
+      if (!fetchingAdult[0]) {
+        next(new AppError("can't find adultPricing"));
+      }
+      console.log(fetchingAdult[0]);
+      totalPrice = fetchingAdult[0].totalPrice;
+      req.body.adultPricing = fetchingAdult[0];
+    }
 
-    req.body.adultPricing = fetchingAdult[0];
     if (childrenPricing) {
       let fetchingChildren = await tourModel.aggregate([
         { $match: { _id: new ObjectId(id) } },
@@ -41,6 +47,9 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
         { $project: { childrenPricing: 1, _id: 0 } },
         { $replaceRoot: { newRoot: "$childrenPricing" } },
       ]);
+      if (!childrenPricing[0]) {
+        next(new AppError("can't find childrenPricing"));
+      }
       req.body.childrenPricing = fetchingChildren[0];
       totalPrice += fetchingChildren[0].totalPrice;
     }
@@ -60,6 +69,9 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
           $replaceRoot: { newRoot: "$options" },
         },
       ]);
+      if (!fetchingOptions[0]) {
+        next(new AppError("can't find options"));
+      }
       fetchingOptions.forEach((option) => {
         options.forEach((inputOption) => {
           if (option._id == inputOption.id) {

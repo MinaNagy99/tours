@@ -15,18 +15,18 @@ const schema = new Schema(
         "Wednesday",
         "Thursday",
         "Friday",
-        "Saturday"
-      ]
+        "Saturday",
+      ],
     },
     adultPricing: {
       adults: { type: Number },
       price: { type: Number },
-      totalPrice: { type: Number }
+      totalPrice: { type: Number },
     },
     childrenPricing: {
       children: { type: Number },
       price: { type: Number },
-      totalPrice: { type: Number }
+      totalPrice: { type: Number },
     },
     options: [
       {
@@ -35,26 +35,35 @@ const schema = new Schema(
         numberOfChildren: { type: Number },
         childPrice: { type: Number },
         price: { type: Number },
-        totalPrice: { type: Number }
-      }
+        totalPrice: { type: Number },
+      },
     ],
     totalPrice: { type: Number, required: true },
-    payment: { type: String, enum: ["pending", "success"], default: "pending" }
+    payment: { type: String, enum: ["pending", "success"], default: "pending" },
   },
   { timestamps: true }
 );
 
 schema.pre(/^find/, async function (next) {
   this.populate({
-    path: 'tourDetails',
-    select: 'mainImg title description' // Specify the fields you want to include
+    path: "tourDetails",
+    select: "mainImg title description", // Specify the fields you want to include
   });
-  this.populate({path:"userDetails",select:"avatar name email nationality -wishList"});
+  this.populate({
+    path: "userDetails",
+    select: "avatar name email nationality -wishList",
+  });
   next();
 });
 schema.pre("save", async function (next) {
-  this.populate("tourDetails");
-  this.populate("userDetails");
+  this.populate({
+    path: "tourDetails",
+    select: "mainImg title description", // Specify the fields you want to include
+  });
+  this.populate({
+    path: "userDetails",
+    select: "avatar name email nationality -wishList",
+  });
   next();
 });
 
