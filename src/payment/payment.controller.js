@@ -2,6 +2,7 @@ import stripe from "stripe";
 import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
 import { AppError } from "../../utilities/AppError.js";
 import subscriptionModel from "../../DataBase/models/subscriptionModel.js";
+import jwt from "jsonwebtoken";
 
 const stripeInstance = stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -13,6 +14,9 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
     userDetails: _id,
   });
 
+  if (subscription.payment == "success") {
+    return next(new AppError("The subscription has been paid"));
+  }
   if (subscription) {
     let { options, adultPricing, childrenPricing } = subscription;
     console.log(childrenPricing);
