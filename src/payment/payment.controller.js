@@ -60,7 +60,13 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
         });
       });
     }
-
+    const token = await jwt.sign(
+      { subscriptionId: req.params.id },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "30d",
+      }
+    );
     let stripeSession = await stripeInstance.checkout.sessions.create({
       line_items,
 
@@ -69,8 +75,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
       },
       mode: "payment",
       customer_email: req.user.email,
-      // success_url: `bashmohands.onrender.com/api/pay/success?uniqueIdentifier=${uniqueIdentifier}`,
-      success_url: `https://tours-b5zy.onrender.com/payment/handelPassCheckout`,
+      success_url: `https://tours-b5zy.onrender.com/payment/handelPassCheckout/${token}`,
       cancel_url: "https://www.yahoo.com/?guccounter=1",
     });
 
@@ -84,46 +89,18 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
 });
 
 export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
-  res.status(200).send(req);
-  // const subscription = await subscriptionModel.find();
-  // res.status(200).send({
-  //   message: "success",
-  //   data: { message: "subscriptionId", data: subscription },
-  // });
-});
+  const { token } = req.params;
+  jwt.verify(token, process.env.JWT_SECRET, async function (err, decoded) {
+    if (err) return next(new AppError(err.message));
 
-export const handelPassCheckout = catchAsyncError(async (req, res) => {
-  // Your webhook handling logic here
-
-  const sig = req.headers["stripe-signature"];
-  let event;
-
-  try {
-    event = await stripe.webhooks.constructEvent(
-      req.body,
-      sig,
-      "whsec_gAiAQSM4GkVKasyfasQu6voR0miuHo2r"
+    const { subscriptionId } = decoded;
+    const subscription = await subscriptionModel.findByIdAndUpdate(
+      {
+        _id: subscriptionId,
+      },
+      { payment: "success" },
+      { new: true }
     );
-  } catch (err) {
-    console.error("Webhook error:", err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  // Handle the event
-  switch (event.type) {
-    case "checkout.session.async_payment_succeeded":
-      const { metadata } = event.data.object;
-      await subscriptionModel.findByIdAndUpdate(metadata.subscriptionId, {
-        payment: "success",
-      });
-      console.log("Payment succeeded:", session);
-      break;
-    // Add more cases to handle other types of events as needed
-    default:
-      // Unexpected event type
-      console.warn(`Unhandled event type: ${event.type}`);
-  }
-
-  // Return a response to acknowledge receipt of the event
-  res.json({ received: true });
+    res.status(200).send({ subscription });
+  });
 });

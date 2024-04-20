@@ -7,7 +7,6 @@ export const auth = catchAsyncError(async (req, res, next) => {
   if (!token) return next(new AppError("token nor provider", 401));
   jwt.verify(token, process.env.JWT_SECRET, async function (err, decoded) {
     if (err) return next(new AppError(err.message));
-    console.log(decode);
     const { id } = decoded;
     const user = await userModel.findById(id).select("-password");
     if (!user) return next(new AppError("user not authorized", 401));

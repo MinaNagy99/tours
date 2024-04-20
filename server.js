@@ -23,40 +23,7 @@ app.use("/tour", tourRouter);
 app.use("/payment", paymentRouter);
 app.use("/subscription", subscriptionRouter);
 app.use("/testimonial", testimonialRouter);
-const endpointSecret = "we_1OvbUS1dg36NYh7MLUkDgymh";
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-app.post(
-  "/payment/handelPassCheckout",
-  express.raw({ type: "application/json" }),
-  (request, response) => {
-    const sig = request.headers["stripe-signature"];
-
-    let event;
-
-    try {
-      event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
-    } catch (err) {
-      response.status(400).send(`Webhook Error: ${err.message}`);
-      return;
-    }
-
-    // Handle the event
-    switch (event.type) {
-      case "payment_intent.succeeded":
-        const paymentIntentSucceeded = event.data.object;
-        console.log('payment sucessss');
-        // Then define and call a function to handle the event payment_intent.succeeded
-        break;
-      // ... handle other event types
-      default:
-        console.log(`Unhandled event type ${event.type}`);
-    }
-
-    // Return a 200 response to acknowledge receipt of the event
-    response.send();
-  }
-);
 app.use(customErrorHandler);
 app.listen(process.env.PORT || 3000, (req, res, next) => {
   console.log("server is running");
