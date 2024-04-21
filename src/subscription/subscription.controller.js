@@ -4,7 +4,7 @@ import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
 import { AppError } from "../../utilities/AppError.js";
 import { ApiFeature } from "../../utilities/AppFeature.js";
 import { ObjectId } from "mongodb";
-import cron from "node-cron";
+import schedule from "node-schedule";
 const createSubscription = catchAsyncError(async (req, res, next) => {
   const { _id } = req.user;
   const { id } = req.params;
@@ -169,10 +169,9 @@ const clearSubscription = catchAsyncError(async (req, res, next) => {
       await subscriptionModel.findByIdAndDelete(sub._id);
     })
   );
-  res.status(200).send({ message: "success", inValidSubscription });
 });
-cron.schedule("*/1 * * * *", () => {
-  clearSubscription;
+schedule.scheduleJob('0 0 * * *', function(){
+  clearSubscription(null,null,null);
 });
 export {
   createSubscription,
