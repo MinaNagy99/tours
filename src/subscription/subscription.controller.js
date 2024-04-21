@@ -4,7 +4,7 @@ import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
 import { AppError } from "../../utilities/AppError.js";
 import { ApiFeature } from "../../utilities/AppFeature.js";
 import { ObjectId } from "mongodb";
-
+import cron from "node-cron";
 const createSubscription = catchAsyncError(async (req, res, next) => {
   const { _id } = req.user;
   const { id } = req.params;
@@ -157,6 +157,7 @@ const getSubscriptionById = catchAsyncError(async (req, res, next) => {
 });
 
 const clearSubscription = catchAsyncError(async (req, res, next) => {
+  console.log("run clear subscription");
   const subscriptions = await subscriptionModel.find();
   const now = new Date();
   const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
@@ -170,7 +171,9 @@ const clearSubscription = catchAsyncError(async (req, res, next) => {
   );
   res.status(200).send({ message: "success", inValidSubscription });
 });
-
+cron.schedule("*/1 * * * *", () => {
+  clearSubscription;
+});
 export {
   createSubscription,
   getAllSubscription,
