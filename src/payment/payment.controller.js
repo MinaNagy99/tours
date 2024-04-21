@@ -23,19 +23,19 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
     line_items.push({
       price_data: {
         currency: "USD",
-        unit_amount: adultPricing.totalPrice * 100,
+        unit_amount: adultPricing.price * 100,
         product_data: {
           name: `Adult`,
           images: ["https://cdn-icons-png.freepik.com/512/3787/3787951.png"],
         },
       },
-      quantity: 1,
+      quantity: adultPricing.adults,
     });
     if (childrenPricing.totalPrice > 0) {
       line_items.push({
         price_data: {
           currency: "USD",
-          unit_amount: childrenPricing.totalPrice * 100,
+          unit_amount: childrenPricing.price * 100,
           product_data: {
             name: "Child",
             images: [
@@ -43,7 +43,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
             ],
           },
         },
-        quantity: 1,
+        quantity: childrenPricing.children,
       });
     }
     if (options) {
