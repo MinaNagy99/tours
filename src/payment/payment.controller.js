@@ -29,7 +29,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
           images: ["https://cdn-icons-png.freepik.com/512/3787/3787951.png"],
         },
       },
-      quantity: adultPricing.adults,
+      quantity: 1,
     });
     if (childrenPricing.totalPrice > 0) {
       line_items.push({
@@ -43,7 +43,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
             ],
           },
         },
-        quantity: childrenPricing.children,
+        quantity: 1,
       });
     }
     if (options) {
