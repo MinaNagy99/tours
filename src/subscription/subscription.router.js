@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { auth, allowedTo } from "../../middlewares/auth.js";
 import {
+  clearSubscription,
   createSubscription,
   getAllSubscription,
   getSubscriptionById,
@@ -8,6 +9,7 @@ import {
 import { validation } from "../../middlewares/validation.js";
 import { subscriptionSchema } from "./subscription.validation.js";
 const subscriptionRouter = Router();
+subscriptionRouter.route("/clear").get(clearSubscription);
 
 subscriptionRouter
   .route("/:id")

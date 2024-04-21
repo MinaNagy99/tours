@@ -16,8 +16,8 @@ const schema = new Schema(
     role: {
       type: String,
       enum: ["user", "admin"],
-      default: "user"
-    }
+      default: "user",
+    },
   },
   { timestamps: true }
 );
@@ -36,12 +36,12 @@ schema.pre("findByIdAndUpdate", async function (next) {
   return next();
 });
 schema.pre(/^find/, async function (next) {
-  this.populate("wishList");
+  this.populate({ path: "wishList", select: "mainImg title description" });
   next();
 });
 schema.methods.generateToken = async function () {
   return await jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: "30d"
+    expiresIn: "30d",
   });
 };
 schema.methods.comparePassword = async function (password) {

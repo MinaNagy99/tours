@@ -32,7 +32,6 @@ const createSubscription = catchAsyncError(async (req, res, next) => {
       if (!fetchingAdult[0]) {
         next(new AppError("can't find adultPricing"));
       }
-      console.log(fetchingAdult[0]);
       totalPrice = fetchingAdult[0].totalPrice;
       req.body.adultPricing = fetchingAdult[0];
     }
@@ -157,4 +156,24 @@ const getSubscriptionById = catchAsyncError(async (req, res, next) => {
   res.status(200).send({ message: "success", data: result });
 });
 
-export { createSubscription, getAllSubscription, getSubscriptionById };
+const clearSubscription = catchAsyncError(async (req, res, next) => {
+  const subscriptions = await subscriptionModel.find();
+  const now = new Date();
+  const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
+  const inValidSubscription = subscriptions.filter(
+    (subscription) => now - subscription.createdAt > oneDayInMilliseconds
+  );
+  await Promise.all(
+    inValidSubscription.map(async (sub) => {
+      await subscriptionModel.findByIdAndDelete(sub._id);
+    })
+  );
+  res.status(200).send({ message: "success", inValidSubscription });
+});
+
+export {
+  createSubscription,
+  getAllSubscription,
+  clearSubscription,
+  getSubscriptionById,
+};

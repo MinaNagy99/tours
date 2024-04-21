@@ -19,7 +19,6 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
   }
   if (subscription) {
     let { options, adultPricing, childrenPricing } = subscription;
-    console.log(childrenPricing);
     let line_items = [];
     line_items.push({
       price_data: {
