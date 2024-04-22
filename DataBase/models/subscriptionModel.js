@@ -45,11 +45,11 @@ const schema = new Schema(
 );
 
 schema.pre(/^find/, async function (next) {
-  this.populate({
+  await this.populate({
     path: "tourDetails",
     select: "mainImg title description", // Specify the fields you want to include
   });
-  this.populate({
+  await this.populate({
     path: "userDetails",
     select: "avatar name email nationality -wishList",
   });
@@ -59,12 +59,12 @@ schema.pre("save", async function (next) {
   await this.populate({
     path: "tourDetails",
     select: "mainImg title description",
-  })
+  });
 
   await this.populate({
     path: "userDetails",
-    select: "avatar name email nationality -wishList",
-  })
+    select: "avatar name email nationality",
+  });
   next();
 });
 

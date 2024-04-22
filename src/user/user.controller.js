@@ -49,28 +49,53 @@ const updateUserProfile = catchAsyncError(async (req, res, next) => {
 const addToWishList = catchAsyncError(async (req, res, next) => {
   const { _id } = req.user;
   const { id } = req.params;
-  const user = await userModel.findByIdAndUpdate(
-    _id,
-    {
-      $addToSet: { wishList: id }, // Corrected field name to wishList
-    },
-    { new: true }
-  );
+  const user = await userModel
+    .findByIdAndUpdate(
+      _id,
+      {
+        $addToSet: { wishList: id }, // Corrected field name to wishList
+      },
+      { new: true }
+    )
+    .populate({
+      path: "wishList",
+      select: "title description mainImg adultPricing", // Corrected field name to description
+    });
   !user && next(new AppError("can't find the tour"));
-  res.status(200).send({ message: "success", data: user });
+  res.status(200).send({ message: "success", data: user.wishList });
 });
 
 const removeFromWishList = catchAsyncError(async (req, res, next) => {
   const { _id } = req.user;
   const { id } = req.params;
-  const user = await userModel.findByIdAndUpdate(
-    _id,
-    {
-      $pull: { wishList: id },
-    },
-    { new: true }
-  );
-  !user && next(new AppError("can't find the tour"));
+  const user = await userModel
+    .findByIdAndUpdate(
+      _id,
+      {
+        $pull: { wishList: id },
+      },
+      { new: true }
+    )
+    .populate({
+      path: "wishList",
+      select: "title description mainImg adultPricing", // Corrected field name to description
+    });
+  !user && next(new AppError("can't find the user"));
+  res.status(200).send({ message: "success", data: user.wishList });
+});
+
+const getWishlist = catchAsyncError(async (req, res, next) => {
+  const { _id } = req.user;
+  const user = await userModel.findById(_id).populate({
+    path: "wishList",
+    select: "mainImg title description adultPricing",
+  });
+  if (!user) {
+    return next(new AppError("can't find user"));
+  }
+  if (!user.wishList[0]) {
+    return next(new AppError("can't find any wishlist"));
+  }
   res.status(200).send({ message: "success", data: user });
 });
 const authentication = catchAsyncError(async (req, res, next) => {
@@ -152,4 +177,5 @@ export {
   forgetPassword,
   authentication,
   authorization,
+  getWishlist,
 };

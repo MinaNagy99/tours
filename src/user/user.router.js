@@ -9,6 +9,7 @@ import {
   getAllUsers,
   getUserById,
   getUserProfile,
+  getWishlist,
   login,
   register,
   removeFromWishList,
@@ -21,6 +22,7 @@ import { uploadMixfile } from "../../middlewares/fileUpload.js";
 import { saveImg } from "../../middlewares/uploadToCloud.js";
 
 const userRouter = Router();
+userRouter.route("/wishlist").get(auth, getWishlist);
 userRouter
   .route("/register")
   .post(uploadMixfile([{ name: "avatar", maxCount: 1 }]), saveImg, register);

@@ -36,7 +36,7 @@ schema.pre("findByIdAndUpdate", async function (next) {
   return next();
 });
 schema.pre(/^find/, async function (next) {
-  this.populate({ path: "wishList", select: "mainImg title description" });
+  this.select("-wishList");
   next();
 });
 schema.methods.generateToken = async function () {

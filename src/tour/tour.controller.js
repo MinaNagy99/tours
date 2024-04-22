@@ -18,7 +18,7 @@ const deleteTour = catchAsyncError(async (req, res, next) => {
 
   !tour && next(new AppError("can't delete the tour"));
 
-  removeImage(tour.mainImg.Public_id);
+  removeImage(tour.mainImg.public_id);
   tour.images.forEach((img) => {
     removeImage(img.public_id);
   });
