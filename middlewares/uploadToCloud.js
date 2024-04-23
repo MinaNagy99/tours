@@ -8,7 +8,7 @@ cloudinary.config({
   api_secret: "Dm_JG-zQcAmBf0WRL4WME0PWm0U",
 });
 
-export const saveImg = async (req, res, next, condition) => {
+export const saveImg = async (req, res, next) => {
   function uploadToCloudinary(buffer, folderName) {
     return new Promise((resolve, reject) => {
       cloudinary.v2.uploader

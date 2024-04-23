@@ -27,6 +27,7 @@ const deleteTour = catchAsyncError(async (req, res, next) => {
 
 const updateTour = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
+  console.log(req.body);
   const tour = await tourModel.findByIdAndUpdate(id, req.body);
   if (!tour) {
     return next(new AppError("Can't find this tour", 404));
