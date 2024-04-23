@@ -5,10 +5,10 @@ import convertToWebp from "../utilities/convertToWebp.js";
 cloudinary.config({
   cloud_name: "dt63l0xqq",
   api_key: "736351833831431",
-  api_secret: "Dm_JG-zQcAmBf0WRL4WME0PWm0U"
+  api_secret: "Dm_JG-zQcAmBf0WRL4WME0PWm0U",
 });
 
-export const saveImg = async (req, res, next) => {
+export const saveImg = async (req, res, next, condition) => {
   function uploadToCloudinary(buffer, folderName) {
     return new Promise((resolve, reject) => {
       cloudinary.v2.uploader
@@ -35,44 +35,44 @@ export const saveImg = async (req, res, next) => {
     return folderNameParts.join("");
   }
 
-  async function uploadSingleFile(fieldName, buffer) {
-    return await handleFileUpload(fieldName, buffer);
-  }
-
-  async function uploadMultipleFiles(fieldName, files) {
-    const uploadedFiles = [];
-    for (const file of files) {
-      const result = await handleFileUpload(fieldName, file.buffer);
-      uploadedFiles.push(result);
+    async function uploadSingleFile(fieldName, buffer) {
+      return await handleFileUpload(fieldName, buffer);
     }
-    return uploadedFiles;
-  }
 
-  async function handleFileUpload(fieldName, buffer) {
-    const folder = getFolderName();
-    const convertedBuffer = await convertToWebp(buffer);
-    return await uploadToCloudinary(convertedBuffer, folder);
-  }
-
-  if (req.files) {
-    for (const fieldName in req.files) {
-      const files = req.files[fieldName];
-      if (files.length === 1) {
-        req.body[fieldName] = await uploadSingleFile(
-          fieldName,
-          files[0].buffer
-        );
-      } else {
-        req.body[fieldName] = await uploadMultipleFiles(fieldName, files);
+    async function uploadMultipleFiles(fieldName, files) {
+      const uploadedFiles = [];
+      for (const file of files) {
+        const result = await handleFileUpload(fieldName, file.buffer);
+        uploadedFiles.push(result);
       }
+      return uploadedFiles;
     }
-  } else {
-    console.log(req.file);
-    req.body[req.file?.fieldname] = await handleFileUpload(
-      getFolderName(),
-      req.file?.buffer
-    );
-  }
+
+    async function handleFileUpload(fieldName, buffer) {
+      const folder = getFolderName();
+      const convertedBuffer = await convertToWebp(buffer);
+      return await uploadToCloudinary(convertedBuffer, folder);
+    }
+
+    if (req.files) {
+      for (const fieldName in req.files) {
+        const files = req.files[fieldName];
+        if (files.length === 1) {
+          req.body[fieldName] = await uploadSingleFile(
+            fieldName,
+            files[0].buffer
+          );
+        } else {
+          req.body[fieldName] = await uploadMultipleFiles(fieldName, files);
+        }
+      }
+    } else {
+      req.body[req.file?.fieldname] = await handleFileUpload(
+        getFolderName(),
+        req.file?.buffer
+      );
+    }
+
 
   next();
 };

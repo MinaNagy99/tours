@@ -28,11 +28,14 @@ const deleteTour = catchAsyncError(async (req, res, next) => {
 const updateTour = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   const tour = await tourModel.findByIdAndUpdate(id, req.body);
+  if (!tour) {
+    return next(new AppError("Can't find this tour", 404));
+  }
   if (req.body.mainImg) {
     removeImage(tour.mainImg.public_id);
   }
   if (req.body.images) {
-    tour.images.forEach((img) => {
+    tour?.images?.forEach((img) => {
       removeImage(img.public_id);
     });
   }

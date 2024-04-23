@@ -76,7 +76,7 @@ export const updatedTourSchema = joi.object({
   description: joi.string().min(10).max(2000),
   mainImg: imgSchema,
   images: joi.array().items(imgSchema),
-  category: joi.string().required(),
+  category: joi.string(),
   options: options,
   isRepeated: joi.boolean(),
   hasOffer: joi.boolean(),

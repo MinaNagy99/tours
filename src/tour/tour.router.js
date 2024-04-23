@@ -7,6 +7,7 @@ import { validation } from "../../middlewares/validation.js";
 import { createTourSchema, updatedTourSchema } from "./tour.validation.js";
 const tourRouter = Router();
 
+
 tourRouter
   .route("/")
   .get(Tour.getAllTour)
@@ -15,7 +16,7 @@ tourRouter
     allowedTo("admin"),
     uploadMixfile([
       { name: "mainImg", maxCount: 1 },
-      { name: "images", maxCount: 10 }
+      { name: "images", maxCount: 10 },
     ]),
     saveImg,
     validation(createTourSchema),
@@ -32,7 +33,7 @@ tourRouter
     allowedTo("admin"),
     uploadMixfile([
       { name: "mainImg", maxCount: 1 },
-      { name: "images", maxCount:  10}
+      { name: "images", maxCount: 10 },
     ]),
     saveImg,
     validation(updatedTourSchema),
