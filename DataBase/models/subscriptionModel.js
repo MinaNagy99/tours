@@ -59,18 +59,21 @@ schema.pre(/^find/, async function (next) {
   }
 });
 
-// schema.pre("save", async function (next) {
-//   await this.populate({
-//     path: "tourDetails",
-//     select: "mainImg title description",
-//   });
+schema.pre("save", async function (next) {
+  try {
+    await this.populate({
+      path: "tourDetails",
+      select: "mainImg title description",
+    }).populate({
+      path: "userDetails",
+      select: "avatar name email nationality",
+    }).execPopulate();
+    next();
+  } catch (error) {
+    next(error); // Pass the error to the next middleware
+  }
+});
 
-//   await this.populate({
-//     path: "userDetails",
-//     select: "avatar name email nationality",
-//   });
-//   next();
-// });
 
 const subscriptionModel = mongoose.model("subscription", schema);
 
