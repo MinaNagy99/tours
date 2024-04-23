@@ -29,11 +29,11 @@ const updateTour = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
   const tour = await tourModel.findByIdAndUpdate(id, req.body);
   if (req.body.mainImg) {
-    removeImage(tour.mainImg.Public_id);
+    removeImage(tour.mainImg.public_id);
   }
   if (req.body.images) {
     tour.images.forEach((img) => {
-      removeImage(img.Public_id);
+      removeImage(img.public_id);
     });
   }
   !tour && next(new AppError("can't update the tour"));
@@ -69,7 +69,6 @@ const deleteAllTour = catchAsyncError(async (req, res, next) => {
   res.status(200).send({ message: "success" });
 });
 
-const participateInTour = catchAsyncError(async (req, res, next) => {});
 
 export {
   getAllTour,
