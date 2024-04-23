@@ -1,4 +1,4 @@
-import mongoose, { Model, Schema, Types } from "mongoose";
+import mongoose, {  Schema, Types } from "mongoose";
 
 const schema = new Schema(
   {
@@ -45,28 +45,32 @@ const schema = new Schema(
 );
 
 schema.pre(/^find/, async function (next) {
-  await this.populate({
-    path: "tourDetails",
-    select: "mainImg title description", // Specify the fields you want to include
-  });
-  await this.populate({
-    path: "userDetails",
-    select: "avatar name email nationality -wishList",
-  });
-  next();
+  try {
+    this.populate({
+      path: "tourDetails",
+      select: "mainImg title description",
+    }).populate({
+      path: "userDetails",
+      select: "avatar name email nationality",
+    });
+    next();
+  } catch (error) {
+    next(error); // Pass the error to the next middleware
+  }
 });
-schema.pre("save", async function (next) {
-  await this.populate({
-    path: "tourDetails",
-    select: "mainImg title description",
-  });
 
-  await this.populate({
-    path: "userDetails",
-    select: "avatar name email nationality",
-  });
-  next();
-});
+// schema.pre("save", async function (next) {
+//   await this.populate({
+//     path: "tourDetails",
+//     select: "mainImg title description",
+//   });
+
+//   await this.populate({
+//     path: "userDetails",
+//     select: "avatar name email nationality",
+//   });
+//   next();
+// });
 
 const subscriptionModel = mongoose.model("subscription", schema);
 
