@@ -7,13 +7,19 @@ import {
   editReview,
   getAllReviews,
 } from "./review.controller.js";
+import { validation } from "../../middlewares/validation.js";
+import {
+  ReviewSchmea,
+  createReviewSchema,
+  editReviewSchmea,
+} from "./review.validation.js";
 const reviewRouter = Router();
 
 reviewRouter
   .route("/:id")
-  .post(auth, createReview)
-  .patch(auth, editReview)
-  .delete(auth, deleteReview)
-  .get(getAllReviews);
+  .post(auth, validation(createReviewSchema), createReview)
+  .patch(auth, validation(editReviewSchmea), editReview)
+  .delete(auth, validation(ReviewSchmea), deleteReview)
+  .get(validation(ReviewSchmea), getAllReviews);
 
 export default reviewRouter;
