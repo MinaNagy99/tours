@@ -44,6 +44,7 @@ const schema = new Schema(
   { timestamps: true }
 );
 
+
 schema.pre(/^find/, async function (next) {
   try {
     this.populate({
@@ -61,18 +62,22 @@ schema.pre(/^find/, async function (next) {
 
 schema.pre("save", async function (next) {
   try {
-    await this.populate({
-      path: "tourDetails",
-      select: "mainImg title description",
-    }).populate({
-      path: "userDetails",
-      select: "avatar name email nationality",
-    }).execPopulate();
+    await this.populate([
+      {
+        path: "tourDetails",
+        select: "mainImg title description",
+      },
+      {
+        path: "userDetails",
+        select: "avatar name email nationality",
+      }
+    ]);
     next();
   } catch (error) {
     next(error); // Pass the error to the next middleware
   }
 });
+
 
 
 const subscriptionModel = mongoose.model("subscription", schema);

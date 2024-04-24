@@ -10,6 +10,7 @@ import subscriptionRouter from "./src/subscription/subscription.router.js";
 import paymentRouter from "./src/payment/payment.router.js";
 import testimonialRouter from "./src/testimonial/testimonial.router.js";
 import Stripe from "stripe";
+import reviewRouter from "./src/review/review.router.js";
 const app = express();
 
 DbConnection;
@@ -23,6 +24,7 @@ app.use("/tour", tourRouter);
 app.use("/payment", paymentRouter);
 app.use("/subscription", subscriptionRouter);
 app.use("/testimonial", testimonialRouter);
+app.use("/review", reviewRouter);
 
 app.use(customErrorHandler);
 app.listen(process.env.PORT || 3000, (req, res, next) => {
