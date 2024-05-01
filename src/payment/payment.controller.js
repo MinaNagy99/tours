@@ -185,11 +185,11 @@ function createInvoiceLink(cartItems, customer, cartTotal, token) {
     cartItems,
     cartTotal,
     customer,
-    redirectionUrls: {
-      successUrl: `https://tours-b5zy.onrender.com/payment/handelPassCheckout/${token}`,
-      failUrl: "https://dev.fawaterk.com/fail",
-      pendingUrl: "https://dev.fawaterk.com/pending",
-    },
+    // redirectionUrls: {
+    //   successUrl: `https://tours-b5zy.onrender.com/payment/handelPassCheckout/${token}`,
+    //   failUrl: "https://dev.fawaterk.com/fail",
+    //   pendingUrl: "https://dev.fawaterk.com/pending",
+    // },
     currency: "EGP",
     payLoad: {},
     sendEmail: true,
