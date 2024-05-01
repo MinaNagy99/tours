@@ -153,22 +153,22 @@ export const fwaterk = catchAsyncError(async (req, res, next) => {
       email: subscription.userDetails.email,
       phone: subscription.userDetails.phone,
     };
-    const token = jwt.sign(
-      { subscriptionId: req.params.id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "30d",
-      }
-    );
+    // const token = jwt.sign(
+    //   { subscriptionId: req.params.id },
+    //   process.env.JWT_SECRET,
+    //   {
+    //     expiresIn: "30d",
+    //   }
+    // );
     try {
       const result = await createInvoiceLink(
         cartItems,
         customer,
         totalPrice,
-        token
       );
       res.status(200).send(result);
     } catch (error) {
+      console.log(error);
       next(new AppError("Error creating invoice link"));
     }
   } else {
@@ -176,7 +176,7 @@ export const fwaterk = catchAsyncError(async (req, res, next) => {
   }
 });
 
-function createInvoiceLink(cartItems, customer, cartTotal, token) {
+function createInvoiceLink(cartItems, customer, cartTotal) {
   var myHeaders = new Headers();
   myHeaders.append("Authorization", `Bearer ${process.env.API_TOKEN_FWATERK}`);
   myHeaders.append("Content-Type", "application/json");
