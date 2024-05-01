@@ -153,18 +153,19 @@ export const fwaterk = catchAsyncError(async (req, res, next) => {
       email: subscription.userDetails.email,
       phone: subscription.userDetails.phone,
     };
-    // const token = jwt.sign(
-    //   { subscriptionId: req.params.id },
-    //   process.env.JWT_SECRET,
-    //   {
-    //     expiresIn: "30d",
-    //   }
-    // );
+    const token = jwt.sign(
+      { subscriptionId: req.params.id },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "30d",
+      }
+    );
     try {
       const result = await createInvoiceLink(
         cartItems,
         customer,
         totalPrice,
+        token
       );
       res.status(200).send(result);
     } catch (error) {
@@ -176,7 +177,7 @@ export const fwaterk = catchAsyncError(async (req, res, next) => {
   }
 });
 
-function createInvoiceLink(cartItems, customer, cartTotal) {
+function createInvoiceLink(cartItems, customer, cartTotal,token) {
   var myHeaders = new Headers();
   myHeaders.append("Authorization", `Bearer ${process.env.API_TOKEN_FWATERK}`);
   myHeaders.append("Content-Type", "application/json");
@@ -185,11 +186,11 @@ function createInvoiceLink(cartItems, customer, cartTotal) {
     cartItems,
     cartTotal,
     customer,
-    // redirectionUrls: {
-    //   successUrl: `https://tours-b5zy.onrender.com/payment/handelPassCheckout/${token}`,
-    //   failUrl: "https://dev.fawaterk.com/fail",
-    //   pendingUrl: "https://dev.fawaterk.com/pending",
-    // },
+    redirectionUrls: {
+      successUrl: `https://tours-b5zy.onrender.com/payment/handelPassCheckout/${token}`,
+      failUrl: "https://dev.fawaterk.com/fail",
+      pendingUrl: "https://dev.fawaterk.com/pending",
+    },
     currency: "USD",
     payLoad: {},
     sendEmail: true,
