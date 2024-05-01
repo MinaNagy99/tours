@@ -190,7 +190,7 @@ function createInvoiceLink(cartItems, customer, cartTotal, token) {
     //   failUrl: "https://dev.fawaterk.com/fail",
     //   pendingUrl: "https://dev.fawaterk.com/pending",
     // },
-    currency: "EGP",
+    currency: "USD",
     payLoad: {},
     sendEmail: true,
     sendSMS: false,
