@@ -1,4 +1,4 @@
-import mongoose, {  Schema, Types } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
 const schema = new Schema(
   {
@@ -44,7 +44,6 @@ const schema = new Schema(
   { timestamps: true }
 );
 
-
 schema.pre(/^find/, async function (next) {
   try {
     this.populate({
@@ -52,7 +51,7 @@ schema.pre(/^find/, async function (next) {
       select: "mainImg title description",
     }).populate({
       path: "userDetails",
-      select: "avatar name email nationality",
+      select: "avatar name email nationality phone",
     });
     next();
   } catch (error) {
@@ -69,16 +68,14 @@ schema.pre("save", async function (next) {
       },
       {
         path: "userDetails",
-        select: "avatar name email nationality",
-      }
+        select: "avatar name email nationality phone",
+      },
     ]);
     next();
   } catch (error) {
     next(error); // Pass the error to the next middleware
   }
 });
-
-
 
 const subscriptionModel = mongoose.model("subscription", schema);
 

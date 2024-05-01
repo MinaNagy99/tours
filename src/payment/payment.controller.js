@@ -63,7 +63,7 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
         });
       });
     }
-    const token = await jwt.sign(
+    const token = jwt.sign(
       { subscriptionId: req.params.id },
       process.env.JWT_SECRET,
       {
@@ -109,3 +109,113 @@ export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
       .send({ message: "payment successfully", data: subscription });
   });
 });
+
+export const fwaterk = catchAsyncError(async (req, res, next) => {
+  const { id } = req.params;
+  const { _id: userId } = req.user;
+  let subscription = await subscriptionModel.findOne({
+    _id: id,
+    userDetails: userId,
+  });
+  if (subscription.payment == "success") {
+    return next(new AppError("The subscription has been paid"));
+  }
+  if (subscription) {
+    let { options, adultPricing, childrenPricing, totalPrice } = subscription;
+    let cartItems = [];
+    cartItems.push({
+      name: "adult",
+      price: adultPricing.price,
+      quantity: adultPricing.adults,
+    });
+    if (childrenPricing.totalPrice > 0) {
+      cartItems.push({
+        name: "child",
+        price: childrenPricing.price,
+        quantity: childrenPricing.children,
+      });
+    }
+
+    if (options) {
+      options.forEach((option) => {
+        cartItems.push({
+          name: option.name,
+          price: option.totalPrice,
+          quantity: 1,
+        });
+      });
+    }
+    const first_name = subscription.userDetails.name.split(" ")[0];
+    const last_name = subscription.userDetails.name.split(" ")[1];
+    const customer = {
+      first_name,
+      last_name,
+      email: subscription.userDetails.email,
+      phone: subscription.userDetails.phone,
+    };
+    const token = jwt.sign(
+      { subscriptionId: req.params.id },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "30d",
+      }
+    );
+    try {
+      const result = await createInvoiceLink(
+        cartItems,
+        customer,
+        totalPrice,
+        token
+      );
+      res.status(200).send(result);
+    } catch (error) {
+      next(new AppError("Error creating invoice link"));
+    }
+  } else {
+    next(new AppError("can't find the subscription"));
+  }
+});
+
+function createInvoiceLink(cartItems, customer, cartTotal, token) {
+  var myHeaders = new Headers();
+  myHeaders.append("Authorization", `Bearer ${process.env.API_TOKEN_FWATERK}`);
+  myHeaders.append("Content-Type", "application/json");
+
+  var raw = JSON.stringify({
+    cartItems,
+    cartTotal,
+    customer,
+    redirectionUrls: {
+      successUrl: `https://tours-b5zy.onrender.com/payment/handelPassCheckout/${token}`,
+      failUrl: "https://dev.fawaterk.com/fail",
+      pendingUrl: "https://dev.fawaterk.com/pending",
+    },
+    currency: "EGP",
+    payLoad: {},
+    sendEmail: true,
+    sendSMS: false,
+  });
+
+  var requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: raw,
+    redirect: "follow",
+  };
+
+  return new Promise((resolve, reject) => {
+    fetch(
+      "https://staging.fawaterk.com/api/v2/createInvoiceLink",
+      requestOptions
+    )
+      .then((response) => response.text())
+      .then((result) => {
+        console.log(result);
+        resolve(JSON.parse(result));
+      })
+      .catch((error) => {
+        console.log("error", error);
+        reject(error);
+      });
+  });
+}
