@@ -9,7 +9,6 @@ import tourRouter from "./src/tour/tour.router.js";
 import subscriptionRouter from "./src/subscription/subscription.router.js";
 import paymentRouter from "./src/payment/payment.router.js";
 import testimonialRouter from "./src/testimonial/testimonial.router.js";
-import Stripe from "stripe";
 import reviewRouter from "./src/review/review.router.js";
 const app = express();
 
