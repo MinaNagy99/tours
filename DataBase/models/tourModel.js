@@ -5,22 +5,25 @@ const schema = new Schema({
   description: { type: String, required: true },
   mainImg: {
     url: { type: String, required: true },
-    public_id: { type: String, required: true }
+    public_id: { type: String, required: true },
   },
   images: [
     {
       url: { type: String },
-      public_id: { type: String }
-    }
+      public_id: { type: String },
+    },
   ],
   options: [
     {
       name: { type: String },
       price: { type: Number },
-      childPrice: { type: Number,default:function () {
-        return this.price * 0.5;
-      } }
-    }
+      childPrice: {
+        type: Number,
+        default: function () {
+          return this.price * 0.5;
+        },
+      },
+    },
   ],
   isRepeated: { type: Boolean, default: true },
   repeatTime: [{ type: String }],
@@ -34,9 +37,9 @@ const schema = new Schema({
         "Wednesday",
         "Thursday",
         "Friday",
-        "Saturday"
-      ]
-    }
+        "Saturday",
+      ],
+    },
   ],
   category: { type: String, required: true },
   tags: [{ type: String, min: 2, max: 50 }],
@@ -44,7 +47,7 @@ const schema = new Schema({
   hasOffer: { type: Boolean, default: false },
   location: {
     from: { type: String, required: true },
-    to: { type: String, required: true }
+    to: { type: String, required: true },
   },
   inclusions: [{ type: String }],
   exclusions: [{ type: String }],
@@ -56,9 +59,9 @@ const schema = new Schema({
         type: Number,
         default: function () {
           return this.adults * this.price;
-        }
-      }
-    }
+        },
+      },
+    },
   ],
   childrenPricing: [
     {
@@ -68,14 +71,26 @@ const schema = new Schema({
         type: Number,
         default: function () {
           return this.children * this.price;
-        }
-      }
-    }
+        },
+      },
+    },
   ],
+  price: {
+    type: Number,
+  },
   duration: { type: String },
   itinerary: { type: String },
-  historyBrief: { type: String, min: 2 }
+  historyBrief: { type: String, min: 2 },
 });
+
+schema.pre("save", function (next) {
+  if (!this.price) {
+    // Calculate the price based on adultPricing
+    this.price = this.adultPricing[0].totalPrice;
+  }
+  next();
+});
+
 
 const tourModel = mongoose.model("tour", schema);
 

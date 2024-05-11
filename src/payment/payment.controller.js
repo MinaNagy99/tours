@@ -288,31 +288,22 @@ export const createOrderPaypal = (req, res) => {
 };
 
 export const completeOrder = (req, res) => {
-  console.log();
   get_access_token()
-    .then((access_token) => {
-      fetch(
-        endpoint_url +
-          "/v2/checkout/orders/" +
-          req.body.order_id +
-          "/" +
-          req.body.intent,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${access_token}`,
-          },
-        }
-      )
-        .then((res) => res.json())
-        .then((json) => {
-          console.log(json);
-          res.send(json);
-        }); //Send minimal data to client
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).send(err);
-    });
-};
+      .then(access_token => {
+          fetch(endpoint_url + '/v2/checkout/orders/' + req.body.order_id + '/' + req.body.intent, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${access_token}`
+                  }
+              })
+              .then(res => res.json())
+              .then(json => {
+                  console.log(json);
+                  res.send(json);
+              }) //Send minimal data to client
+      })
+      .catch(err => {
+          res.status(500).send(err)
+      })
+}
