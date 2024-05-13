@@ -157,8 +157,7 @@ const getSubscriptionById = catchAsyncError(async (req, res, next) => {
 });
 
 const clearSubscription = catchAsyncError(async (req, res, next) => {
-  console.log("run clear subscription");
-  const subscriptions = await subscriptionModel.find();
+  const subscriptions = await subscriptionModel.find({ payment: "pending" });
   const now = new Date();
   const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
   const inValidSubscription = subscriptions.filter(
@@ -170,8 +169,8 @@ const clearSubscription = catchAsyncError(async (req, res, next) => {
     })
   );
 });
-schedule.scheduleJob('0 0 * * *', function(){
-  clearSubscription(null,null,null);
+schedule.scheduleJob("0 0 * * *", function () {
+  clearSubscription(null, null, null);
 });
 export {
   createSubscription,

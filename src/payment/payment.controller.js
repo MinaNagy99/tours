@@ -235,23 +235,24 @@ const endpoint_url =
     ? "https://api-m.sandbox.paypal.com"
     : "https://api-m.paypal.com";
 
-function get_access_token() {
-  const auth = `${client_id}:${client_secret}`;
-  const data = "grant_type=client_credentials";
-  return fetch(endpoint_url + "/v1/oauth2/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${Buffer.from(auth).toString("base64")}`,
-    },
-    body: data,
-  })
-    .then((res) => res.json())
-    .then((json) => {
-      return json.access_token;
-    });
-}
+    function get_access_token() {
+      const auth = `${client_id}:${client_secret}`
+      const data = 'grant_type=client_credentials'
+      return fetch(endpoint_url + '/v1/oauth2/token', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  'Authorization': `Basic ${Buffer.from(auth).toString('base64')}`
+              },
+              body: data
+          })
+          .then(res => res.json())
+          .then(json => {
+              return json.access_token;
+          })
+  }
 export const createOrderPaypal = (req, res) => {
+  console.log('create order form server');
   get_access_token()
     .then((access_token) => {
       let order_data_json = {
