@@ -23,7 +23,6 @@ export class ApiFeature {
     filterobj = JSON.stringify(filterobj);
     filterobj = filterobj.replace(/\b(gt|gte|lt|lte)\b/g, (math) => `$${math}`);
     filterobj = JSON.parse(filterobj);
-    console.log(filterobj);
     this.mongoseQuery.find(filterobj);
 
     return this;

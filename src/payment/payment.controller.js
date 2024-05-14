@@ -5,6 +5,7 @@ import subscriptionModel from "../../DataBase/models/subscriptionModel.js";
 import jwt from "jsonwebtoken";
 import fetch from "node-fetch";
 import "dotenv/config";
+import changeCurrence from "../../utilities/changeCurrence.js";
 
 const stripeInstance = stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -114,35 +115,55 @@ export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
 
 export const fwaterk = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
+
   const { _id: userId } = req.user;
+  const response = await fetch(
+    "https://api.exchangerate-api.com/v4/latest/USD"
+  );
+  const data = await response.json();
+  const EGP = data.rates.EGP;
   let subscription = await subscriptionModel.findOne({
     _id: id,
     userDetails: userId,
   });
+
   if (subscription.payment == "success") {
     return next(new AppError("The subscription has been paid"));
   }
   if (subscription) {
     let { options, adultPricing, childrenPricing, totalPrice } = subscription;
     let cartItems = [];
+    let price =
+      req.body.currency === "EGP"
+        ? adultPricing.price * EGP
+        : adultPricing.price;
     cartItems.push({
       name: "adult",
-      price: adultPricing.price,
+      price,
       quantity: adultPricing.adults,
     });
     if (childrenPricing.totalPrice > 0) {
+      let price =
+        req.body.currency === "EGP"
+          ? childrenPricing.price * EGP
+          : childrenPricing.price;
+
       cartItems.push({
         name: "child",
-        price: childrenPricing.price,
+        price,
         quantity: childrenPricing.children,
       });
     }
 
     if (options) {
       options.forEach((option) => {
+        let price =
+          req.body.currency === "EGP"
+            ? option.totalPrice * EGP
+            : option.totalPrice;
         cartItems.push({
           name: option.name,
-          price: option.totalPrice,
+          price,
           quantity: 1,
         });
       });
@@ -162,24 +183,44 @@ export const fwaterk = catchAsyncError(async (req, res, next) => {
         expiresIn: "30d",
       }
     );
-    try {
-      const result = await createInvoiceLink(
-        cartItems,
-        customer,
-        totalPrice,
-        token
-      );
-      res.status(200).send(result);
-    } catch (error) {
-      console.log(error);
-      next(new AppError("Error creating invoice link"));
+    if (req.body.currency == "EGP") {
+      try {
+        const result = await createInvoiceLink(
+          cartItems,
+          customer,
+          totalPrice * EGP,
+          token,
+          "EGP"
+        );
+        res.status(200).send(result);
+      } catch (error) {
+        next(new AppError("Error creating invoice link"));
+      }
+    } else {
+      try {
+        const result = await createInvoiceLink(
+          cartItems,
+          customer,
+          totalPrice,
+          token
+        );
+        res.status(200).send(result);
+      } catch (error) {
+        next(new AppError("Error creating invoice link", error));
+      }
     }
   } else {
     next(new AppError("can't find the subscription"));
   }
 });
 
-function createInvoiceLink(cartItems, customer, cartTotal, token) {
+function createInvoiceLink(
+  cartItems,
+  customer,
+  cartTotal,
+  token,
+  currency = "USD"
+) {
   var myHeaders = new Headers();
   myHeaders.append("Authorization", `Bearer ${process.env.API_TOKEN_FWATERK}`);
   myHeaders.append("Content-Type", "application/json");
@@ -193,7 +234,7 @@ function createInvoiceLink(cartItems, customer, cartTotal, token) {
       failUrl: "https://dev.fawaterk.com/fail",
       pendingUrl: "https://dev.fawaterk.com/pending",
     },
-    currency: "USD",
+    currency,
     payLoad: {},
     sendEmail: true,
     sendSMS: false,
@@ -213,11 +254,9 @@ function createInvoiceLink(cartItems, customer, cartTotal, token) {
     )
       .then((response) => response.text())
       .then((result) => {
-        console.log(result);
         resolve(JSON.parse(result));
       })
       .catch((error) => {
-        console.log("error", error);
         reject(error);
       });
   });
@@ -235,24 +274,23 @@ const endpoint_url =
     ? "https://api-m.sandbox.paypal.com"
     : "https://api-m.paypal.com";
 
-    function get_access_token() {
-      const auth = `${client_id}:${client_secret}`
-      const data = 'grant_type=client_credentials'
-      return fetch(endpoint_url + '/v1/oauth2/token', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
-                  'Authorization': `Basic ${Buffer.from(auth).toString('base64')}`
-              },
-              body: data
-          })
-          .then(res => res.json())
-          .then(json => {
-              return json.access_token;
-          })
-  }
+function get_access_token() {
+  const auth = `${client_id}:${client_secret}`;
+  const data = "grant_type=client_credentials";
+  return fetch(endpoint_url + "/v1/oauth2/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${Buffer.from(auth).toString("base64")}`,
+    },
+    body: data,
+  })
+    .then((res) => res.json())
+    .then((json) => {
+      return json.access_token;
+    });
+}
 export const createOrderPaypal = (req, res) => {
-  console.log('create order form server');
   get_access_token()
     .then((access_token) => {
       let order_data_json = {
@@ -283,28 +321,34 @@ export const createOrderPaypal = (req, res) => {
         }); //Send minimal data to client
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).send(err);
     });
 };
 
 export const completeOrder = (req, res) => {
   get_access_token()
-      .then(access_token => {
-          fetch(endpoint_url + '/v2/checkout/orders/' + req.body.order_id + '/' + req.body.intent, {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${access_token}`
-                  }
-              })
-              .then(res => res.json())
-              .then(json => {
-                  console.log(json);
-                  res.send(json);
-              }) //Send minimal data to client
-      })
-      .catch(err => {
-          res.status(500).send(err)
-      })
-}
+    .then((access_token) => {
+      fetch(
+        endpoint_url +
+          "/v2/checkout/orders/" +
+          req.body.order_id +
+          "/" +
+          req.body.intent,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      )
+        .then((res) => res.json())
+        .then((json) => {
+          console.log(json);
+          res.send(json);
+        }); //Send minimal data to client
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+};

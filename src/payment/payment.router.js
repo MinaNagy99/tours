@@ -9,7 +9,7 @@ import {
 } from "./payment.controller.js";
 const paymentRouter = express.Router();
 
-paymentRouter.post("/checkout-session/:id", createOrderPaypal);
+paymentRouter.post("/checkout-session/:id", auth, fwaterk);
 paymentRouter.post("/complete-order", completeOrder);
 paymentRouter.get("/handelPassCheckout/:token", handleSuccessPayment);
 // paymentRouter.post("/fwaterk/:id", auth, fwaterk);
