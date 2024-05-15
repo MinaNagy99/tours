@@ -115,13 +115,14 @@ export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
 
 export const fwaterk = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
-
+  const { currency } = req.body;
   const { _id: userId } = req.user;
   const response = await fetch(
     "https://api.exchangerate-api.com/v4/latest/USD"
   );
   const data = await response.json();
   const EGP = data.rates.EGP;
+  const EUR = data.rates.EUR;
   let subscription = await subscriptionModel.findOne({
     _id: id,
     userDetails: userId,
@@ -134,9 +135,12 @@ export const fwaterk = catchAsyncError(async (req, res, next) => {
     let { options, adultPricing, childrenPricing, totalPrice } = subscription;
     let cartItems = [];
     let price =
-      req.body.currency === "EGP"
+      currency === "EGP"
         ? adultPricing.price * EGP
+        : currency === "EUR"
+        ? adultPricing.price * EUR
         : adultPricing.price;
+
     cartItems.push({
       name: "adult",
       price,
@@ -144,8 +148,10 @@ export const fwaterk = catchAsyncError(async (req, res, next) => {
     });
     if (childrenPricing.totalPrice > 0) {
       let price =
-        req.body.currency === "EGP"
+        currency === "EGP"
           ? childrenPricing.price * EGP
+          : currency === "EUR"
+          ? childrenPricing.price * EUR
           : childrenPricing.price;
 
       cartItems.push({
@@ -158,9 +164,12 @@ export const fwaterk = catchAsyncError(async (req, res, next) => {
     if (options) {
       options.forEach((option) => {
         let price =
-          req.body.currency === "EGP"
+          currency === "EGP"
             ? option.totalPrice * EGP
+            : currency === "EUR"
+            ? option.totalPrice * EUR
             : option.totalPrice;
+
         cartItems.push({
           name: option.name,
           price,
@@ -183,31 +192,29 @@ export const fwaterk = catchAsyncError(async (req, res, next) => {
         expiresIn: "30d",
       }
     );
-    if (req.body.currency == "EGP") {
-      try {
-        const result = await createInvoiceLink(
-          cartItems,
-          customer,
-          totalPrice * EGP,
-          token,
-          "EGP"
-        );
-        res.status(200).send(result);
-      } catch (error) {
-        next(new AppError("Error creating invoice link"));
-      }
-    } else {
-      try {
-        const result = await createInvoiceLink(
-          cartItems,
-          customer,
-          totalPrice,
-          token
-        );
-        res.status(200).send(result);
-      } catch (error) {
-        next(new AppError("Error creating invoice link", error));
-      }
+
+    // Calculate the total price based on the currency
+    const convertedTotalPrice =
+      currency == "EGP"
+        ? totalPrice * EGP
+        : currency == "EUR"
+        ? totalPrice * EUR
+        : totalPrice;
+
+    const currencyPayment =
+      currency == "EUR" ? "EUR" : currency == "EGP" ? "EGP" : "USD";
+
+    try {
+      const result = await createInvoiceLink(
+        cartItems,
+        customer,
+        convertedTotalPrice,
+        token,
+        currencyPayment
+      );
+      res.status(200).send(result);
+    } catch (error) {
+      next(new AppError("Error creating invoice link"));
     }
   } else {
     next(new AppError("can't find the subscription"));
