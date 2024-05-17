@@ -5,7 +5,6 @@ import { AppError } from "../../utilities/AppError.js";
 import { ApiFeature } from "../../utilities/AppFeature.js";
 
 const createTour = catchAsyncError(async (req, res, next) => {
- 
   const tour = await tourModel.create(req.body);
 
   !tour && next(new AppError("can't create tour"));
@@ -50,13 +49,18 @@ const getAllTour = catchAsyncError(async (req, res, next) => {
     .filter()
     .sort()
     .search();
+  const countTours = await tourModel.find().countDocuments();
+  const pageNumber = Math.ceil(countTours / 20);
   const result = await apiFeature.mongoseQuery;
   if (!result) {
     return next(new AppError("can't find events"));
   }
   res
     .status(200)
-    .send({ message: "success", data: { page: apiFeature.page, result } });
+    .send({
+      message: "success",
+      data: { page: apiFeature.page, result, pageNumber },
+    });
 });
 const getTourById = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
@@ -71,7 +75,6 @@ const deleteAllTour = catchAsyncError(async (req, res, next) => {
   await tourModel.deleteMany();
   res.status(200).send({ message: "success" });
 });
-
 
 export {
   getAllTour,
