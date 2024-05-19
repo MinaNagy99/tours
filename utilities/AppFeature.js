@@ -14,6 +14,7 @@ export class ApiFeature {
     return this;
   }
 
+
   filter() {
     let filterobj = { ...this.queryString };
     const excludeQuary = ["page", "sort", "fields", "keyword"];
@@ -31,6 +32,9 @@ export class ApiFeature {
     if (this.queryString.sort) {
       let sortedBy = this.queryString.sort.split(",").join(" ");
       this.mongoseQuery.sort(sortedBy);
+    } else {
+      // If no sort criteria is provided, sort by default field (e.g., createdAt)
+      this.mongoseQuery.sort({ index: 1 }); // Or 'asc' depending on your preference
     }
     return this;
   }
@@ -40,8 +44,8 @@ export class ApiFeature {
       this.mongoseQuery.find({
         $or: [
           { title: { $regex: this.queryString.keyword, $options: "i" } },
-          { description: { $regex: this.queryString.keyword, $options: "i" } }
-        ]
+          { description: { $regex: this.queryString.keyword, $options: "i" } },
+        ],
       });
     }
     return this;

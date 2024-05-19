@@ -114,9 +114,7 @@ const getAllSubscription = catchAsyncError(async (req, res, next) => {
       .filter()
       .sort()
       .search();
-    const countSubscription = await subscriptionModel.find().countDocuments();
-    const pageNumber = Math.ceil(countSubscription / 20);
-    const result = await apiFeature.mongoseQuery;
+
     if (!result) {
       return next(new AppError("can't find subscriptions"));
     }
@@ -141,7 +139,7 @@ const getAllSubscription = catchAsyncError(async (req, res, next) => {
       .status(200)
       .send({
         message: "success",
-        data: { page: apiFeature.page, result, pageNumber },
+        data: { page: apiFeature.page, result },
       });
   }
 });

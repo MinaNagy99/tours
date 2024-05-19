@@ -13,6 +13,8 @@ const schema = new Schema({
       public_id: { type: String },
     },
   ],
+  index: { type: Number, default: -1 },
+
   options: [
     {
       name: { type: String },
@@ -90,7 +92,6 @@ schema.pre("save", function (next) {
   }
   next();
 });
-
 
 const tourModel = mongoose.model("tour", schema);
 

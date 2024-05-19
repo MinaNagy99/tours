@@ -3,6 +3,7 @@ import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
 import { removeImage } from "../../middlewares/deleteImg.js";
 import { AppError } from "../../utilities/AppError.js";
 import { ApiFeature } from "../../utilities/AppFeature.js";
+import { ObjectId } from "mongodb";
 
 const createTour = catchAsyncError(async (req, res, next) => {
   const tour = await tourModel.create(req.body);
@@ -47,20 +48,22 @@ const getAllTour = catchAsyncError(async (req, res, next) => {
     .paginate()
     .fields()
     .filter()
-    .sort()
-    .search();
-  const countTours = await tourModel.find().countDocuments();
-  const pageNumber = Math.ceil(countTours / 20);
+    .search()
+    .sort();
+  const countBlogs = await tourModel.find().countDocuments();
+  const pageNumber = Math.ceil(countBlogs / 20);
   const result = await apiFeature.mongoseQuery;
   if (!result) {
-    return next(new AppError("can't find events"));
+    return next(new AppError("can't find tour"));
   }
-  res
-    .status(200)
-    .send({
-      message: "success",
-      data: { page: apiFeature.page, result, pageNumber },
-    });
+  res.status(200).send({
+    message: "Success",
+    data: {
+      page: apiFeature.page,
+      result,
+      pageNumber,
+    },
+  });
 });
 const getTourById = catchAsyncError(async (req, res, next) => {
   const { id } = req.params;
@@ -75,8 +78,19 @@ const deleteAllTour = catchAsyncError(async (req, res, next) => {
   await tourModel.deleteMany();
   res.status(200).send({ message: "success" });
 });
+const orderTour = catchAsyncError(async (req, res, next) => {
+  for (const item of req.body) {
+    const objectId = new ObjectId(item._id);
+    await tourModel.updateOne(
+      { _id: objectId },
+      { $set: { index: item.index } }
+    );
+  }
+  res.status(200).send({ message: "Success" });
+});
 
 export {
+  orderTour,
   getAllTour,
   createTour,
   getTourById,
