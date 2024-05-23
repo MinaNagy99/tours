@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import fetch from "node-fetch";
 import "dotenv/config";
 import changeCurrence from "../../utilities/changeCurrence.js";
+import { response } from "express";
+import axios from "axios";
 
 const stripeInstance = stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -109,7 +111,9 @@ export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
     );
     res
       .status(200)
-      .send({ message: "payment successfully", data: subscription });
+      .redirectTo(
+        `https://pyramidsegypttour.com/account/user/${subscription.userDetails}/${subscriptionId}/orderConfirmed`
+      );
   });
 });
 
@@ -127,7 +131,6 @@ export const fwaterk = catchAsyncError(async (req, res, next) => {
     _id: id,
     userDetails: userId,
   });
-
   if (subscription.payment == "success") {
     return next(new AppError("The subscription has been paid"));
   }
@@ -193,7 +196,6 @@ export const fwaterk = catchAsyncError(async (req, res, next) => {
       }
     );
 
-    // Calculate the total price based on the currency
     const convertedTotalPrice =
       currency == "EGP"
         ? totalPrice * EGP
@@ -214,10 +216,10 @@ export const fwaterk = catchAsyncError(async (req, res, next) => {
       );
       res.status(200).send(result);
     } catch (error) {
-      next(new AppError("Error creating invoice link"));
+      next(new AppError(error));
     }
   } else {
-    next(new AppError("can't find the subscription"));
+    return next(new AppError("can't find the subscription"));
   }
 });
 
@@ -228,44 +230,36 @@ function createInvoiceLink(
   token,
   currency = "USD"
 ) {
-  var myHeaders = new Headers();
-  myHeaders.append("Authorization", `Bearer ${process.env.API_TOKEN_FWATERK}`);
-  myHeaders.append("Content-Type", "application/json");
-
-  var raw = JSON.stringify({
-    cartItems,
+  var data = JSON.stringify({
+    payment_method_id: 2,
     cartTotal,
+    currency,
     customer,
     redirectionUrls: {
       successUrl: `https://tours-b5zy.onrender.com/payment/handelPassCheckout/${token}`,
       failUrl: "https://dev.fawaterk.com/fail",
       pendingUrl: "https://dev.fawaterk.com/pending",
     },
-    currency,
-    payLoad: {},
-    sendEmail: true,
-    sendSMS: false,
+    cartItems,
   });
 
-  var requestOptions = {
-    method: "POST",
-    headers: myHeaders,
-    body: raw,
-    redirect: "follow",
+  var config = {
+    method: "post",
+    url: "https://staging.fawaterk.com/api/v2/invoiceInitPay",
+    headers: {
+      Authorization: `Bearer ${process.env.API_TOKEN_FWATERK}`,
+      "Content-Type": "application/json",
+    },
+    data: data,
   };
 
-  return new Promise((resolve, reject) => {
-    fetch(
-      "https://staging.fawaterk.com/api/v2/createInvoiceLink",
-      requestOptions
-    )
-      .then((response) => response.text())
-      .then((result) => {
-        resolve(JSON.parse(result));
-      })
-      .catch((error) => {
-        reject(error);
-      });
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await axios(config);
+      resolve(response.data);
+    } catch (error) {
+      reject(error.response.data.message);
+    }
   });
 }
 
@@ -351,7 +345,6 @@ export const completeOrder = (req, res) => {
       )
         .then((res) => res.json())
         .then((json) => {
-          console.log(json);
           res.send(json);
         }); //Send minimal data to client
     })

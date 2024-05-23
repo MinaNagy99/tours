@@ -2,9 +2,10 @@
   "name": "tours",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "index.js",
   "type": "module",
   "dependencies": {
+    "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.0.0",
     "cors": "^2.8.5",

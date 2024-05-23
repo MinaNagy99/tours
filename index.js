@@ -14,6 +14,7 @@ const app = express();
 
 DbConnection;
 app.use(cors());
+
 dotenv.config();
 
 app.use(morgan("combined"));
@@ -26,6 +27,6 @@ app.use("/testimonial", testimonialRouter);
 app.use("/review", reviewRouter);
 
 app.use(customErrorHandler);
-app.listen(process.env.PORT || 3000, (req, res, next) => {
-  console.log("server is running");
+app.listen(process.env.PORT, "0.0.0.0", () => {
+  console.log(`server is running `);
 });
