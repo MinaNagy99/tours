@@ -238,6 +238,7 @@ function createInvoiceLink(
       pendingUrl: "https://dev.fawaterk.com/pending",
     },
     cartItems,
+    sendEmail: true,
   });
 
   var config = {
