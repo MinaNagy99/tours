@@ -103,17 +103,14 @@ export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
 
     const { subscriptionId } = decoded;
     const subscription = await subscriptionModel.findByIdAndUpdate(
-      {
-        _id: subscriptionId,
-      },
+      subscriptionId,
       { payment: "success" },
       { new: true }
     );
-    res
-      .status(200)
-      .redirectTo(
-        `https://pyramidsegypttour.com/account/user/${subscription.userDetails}/${subscriptionId}/orderConfirmed`
-      );
+
+    res.redirect(
+      `https://pyramidsegypttour.com/account/user/${subscription.userDetails}/${subscriptionId}/orderConfirmed`
+    );
   });
 });
 
