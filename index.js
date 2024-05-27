@@ -13,18 +13,20 @@ import reviewRouter from "./src/review/review.router.js";
 const app = express();
 
 DbConnection;
+
+
 app.use(cors());
 
 dotenv.config();
 
 app.use(morgan("combined"));
 app.use(express.json());
-app.use("/user", userRouter);
-app.use("/tour", tourRouter);
-app.use("/payment", paymentRouter);
-app.use("/subscription", subscriptionRouter);
-app.use("/testimonial", testimonialRouter);
-app.use("/review", reviewRouter);
+app.use("api/user", userRouter);
+app.use("api/tour", tourRouter);
+app.use("api/payment", paymentRouter);
+app.use("api/subscription", subscriptionRouter);
+app.use("api/testimonial", testimonialRouter);
+app.use("apiD/review", reviewRouter);
 
 app.use(customErrorHandler);
 app.listen(process.env.PORT, "0.0.0.0", () => {

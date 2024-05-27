@@ -234,8 +234,8 @@ function createInvoiceLink(
     customer,
     redirectionUrls: {
       successUrl: `https://tours-b5zy.onrender.com/payment/handelPassCheckout/${token}`,
-      failUrl: "https://dev.fawaterk.com/fail",
-      pendingUrl: "https://dev.fawaterk.com/pending",
+      failUrl: `https://pyramidsegypttour.com/account/user/${subscription.userDetails}/${subscriptionId}/orderFailed`,
+      pendingUrl: `https://pyramidsegypttour.com/account/user/${subscription.userDetails}/${subscriptionId}/orderPeding`,
     },
     cartItems,
     sendEmail: true,
@@ -243,7 +243,7 @@ function createInvoiceLink(
 
   var config = {
     method: "post",
-    url: "https://staging.fawaterk.com/api/v2/invoiceInitPay",
+    url: "https://app.fawaterk.com/api/v2/invoiceInitPay",
     headers: {
       Authorization: `Bearer ${process.env.API_TOKEN_FWATERK}`,
       "Content-Type": "application/json",
