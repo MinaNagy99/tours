@@ -234,8 +234,8 @@ function createInvoiceLink(
     customer,
     redirectionUrls: {
       successUrl: `https://tours-b5zy.onrender.com/payment/handelPassCheckout/${token}`,
-      failUrl: `https://pyramidsegypttour.com/account/user/${subscription.userDetails}/${subscriptionId}/orderFailed`,
-      pendingUrl: `https://pyramidsegypttour.com/account/user/${subscription.userDetails}/${subscriptionId}/orderPeding`,
+      failUrl: `https://pyramidsegypttour.com/account/user/orderFailed`,
+      pendingUrl: `https://pyramidsegypttour.com/account/user/orderPeding`,
     },
     cartItems,
     sendEmail: true,
