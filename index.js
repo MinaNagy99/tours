@@ -26,7 +26,7 @@ app.use("api/tour", tourRouter);
 app.use("api/payment", paymentRouter);
 app.use("api/subscription", subscriptionRouter);
 app.use("api/testimonial", testimonialRouter);
-app.use("apiD/review", reviewRouter);
+app.use("api/review", reviewRouter);
 
 app.use(customErrorHandler);
 app.listen(process.env.PORT, "0.0.0.0", () => {
