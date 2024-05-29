@@ -1,8 +1,8 @@
-import subscriptionModel from "../../DataBase/models/subscriptionModel.js";
-import tourModel from "../../DataBase/models/tourModel.js";
-import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
-import { AppError } from "../../utilities/AppError.js";
-import { ApiFeature } from "../../utilities/AppFeature.js";
+import subscriptionModel from "../../../DataBase/models/subscriptionModel.js";
+import tourModel from "../../../DataBase/models/tourModel.js";
+import { catchAsyncError } from "../../../middlewares/catchAsyncError.js";
+import { AppError } from "../../../utilities/AppError.js";
+import { ApiFeature } from "../../../utilities/AppFeature.js";
 import { ObjectId } from "mongodb";
 import schedule from "node-schedule";
 const createSubscription = catchAsyncError(async (req, res, next) => {
@@ -134,13 +134,12 @@ const getAllSubscription = catchAsyncError(async (req, res, next) => {
     if (!result) {
       return next(new AppError("can't find subscriptions"));
     }
-
-    res
-      .status(200)
-      .send({
-        message: "success",
-        data: { page: apiFeature.page, result },
-      });
+    const cout = await subscriptionModel.find().countDocuments();
+    const pageNumber = Math.ceil(cout / 20);
+    res.status(200).send({
+      message: "success",
+      data: { page: apiFeature.page, result, pageNumber },
+    });
   }
 });
 

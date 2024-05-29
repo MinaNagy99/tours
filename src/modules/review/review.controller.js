@@ -1,7 +1,7 @@
-import reviewModel from "../../DataBase/models/reviewModel.js";
-import subscriptionModel from "../../DataBase/models/subscriptionModel.js";
-import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
-import { AppError } from "../../utilities/AppError.js";
+import reviewModel from "../../../DataBase/models/reviewModel.js";
+import subscriptionModel from "../../../DataBase/models/subscriptionModel.js";
+import { catchAsyncError } from "../../../middlewares/catchAsyncError.js";
+import { AppError } from "../../../utilities/AppError.js";
 
 export const createReview = catchAsyncError(async (req, res, next) => {
   const { _id: userId } = req.user;

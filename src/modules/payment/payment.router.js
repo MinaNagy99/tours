@@ -1,5 +1,5 @@
 import express from "express";
-import { auth } from "../../middlewares/auth.js";
+import { auth } from "../../../middlewares/auth.js";
 import {
   completeOrder,
   createOrderPaypal,
@@ -10,7 +10,7 @@ import {
 const paymentRouter = express.Router();
 
 paymentRouter.post("/checkout-session/:id", auth, fwaterk);
-paymentRouter.post("/complete-order", completeOrder);
+// paymentRouter.post("/complete-order", completeOrder);
 paymentRouter.get("/handelPassCheckout/:token", handleSuccessPayment);
 // paymentRouter.post("/fwaterk/:id", auth, fwaterk);
 export default paymentRouter;

@@ -16,10 +16,10 @@ import {
   sendCode,
 } from "./user.controller.js";
 import { forgetPasswordSchema, userSchemaLogin } from "./user.validation.js";
-import { allowedTo, auth } from "../../middlewares/auth.js";
-import { validation } from "../../middlewares/validation.js";
-import { uploadMixfile } from "../../middlewares/fileUpload.js";
-import { saveImg } from "../../middlewares/uploadToCloud.js";
+import { allowedTo, auth } from "../../../middlewares/auth.js";
+import { validation } from "../../../middlewares/validation.js";
+import { saveImg } from "../../../middlewares/uploadToCloud.js";
+import { uploadMixfile } from "../../../middlewares/fileUpload.js";
 
 const userRouter = Router();
 userRouter.route("/wishlist").get(auth, getWishlist);

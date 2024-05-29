@@ -1,9 +1,10 @@
 import { hash } from "bcrypt";
-import userModel from "../../DataBase/models/userModel.js";
-import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
-import { removeImage } from "../../middlewares/deleteImg.js";
-import { AppError } from "../../utilities/AppError.js";
-import sendEmail from "../../utilities/Emails/sendEmail.js";
+import userModel from "../../../DataBase/models/userModel.js";
+import { catchAsyncError } from "../../../middlewares/catchAsyncError.js";
+import { removeImage } from "../../../middlewares/deleteImg.js";
+import { AppError } from "../../../utilities/AppError.js";
+import sendEmail from "../../../utilities/Emails/sendEmail.js";
+import { ApiFeature } from "../../../utilities/AppFeature.js";
 const register = catchAsyncError(async (req, res, next) => {
   const { email } = req.body;
   const oldUser = await userModel.findOne({ email });
@@ -14,9 +15,23 @@ const register = catchAsyncError(async (req, res, next) => {
   res.status(200).send({ message: "success", data: user, token });
 });
 const getAllUsers = catchAsyncError(async (req, res, next) => {
-  const users = await userModel.find();
-  !users && new AppError("can't find users");
-  res.status(200).send({ message: "success", data: users });
+  const apiFeature = new ApiFeature(userModel.find(), req.query)
+    .paginate()
+    .fields()
+    .filter()
+    .sort()
+    .search();
+  const result = await apiFeature.mongoseQuery;
+
+  const count = await userModel.find().countDocuments();
+  const pageNumber = Math.ceil(count / 20);
+  !result && new AppError("can't find users");
+  res.status(200).send({
+    message: "success",
+    data: result,
+    pageNumber,
+    page: apiFeature.page,
+  });
 });
 
 const login = catchAsyncError(async (req, res, next) => {

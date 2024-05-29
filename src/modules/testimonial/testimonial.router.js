@@ -5,13 +5,14 @@ import {
   editTestimonial,
   getAllTestimonial
 } from "./testimonial.controller.js";
-import { uploadSingleFile } from "../../middlewares/fileUpload.js";
-import { saveImg } from "../../middlewares/uploadToCloud.js";
-import { validation } from "../../middlewares/validation.js";
+
 import {
   testimonialSchema,
   testimonialUpdateSchema
 } from "./testimonial.validation.js";
+import { saveImg } from "../../../middlewares/uploadToCloud.js";
+import { validation } from "../../../middlewares/validation.js";
+import { uploadSingleFile } from "../../../middlewares/fileUpload.js";
 
 const testimonialRouter = Router();
 

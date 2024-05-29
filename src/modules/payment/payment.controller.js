@@ -1,11 +1,11 @@
 import stripe from "stripe";
-import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
-import { AppError } from "../../utilities/AppError.js";
-import subscriptionModel from "../../DataBase/models/subscriptionModel.js";
+import { catchAsyncError } from "../../../middlewares/catchAsyncError.js";
+import { AppError } from "../../../utilities/AppError.js";
+import subscriptionModel from "../../../DataBase/models/subscriptionModel.js";
 import jwt from "jsonwebtoken";
 import fetch from "node-fetch";
 import "dotenv/config";
-import changeCurrence from "../../utilities/changeCurrence.js";
+import changeCurrence from "../../../utilities/changeCurrence.js";
 import { response } from "express";
 import axios from "axios";
 

@@ -1,8 +1,8 @@
-import tourModel from "../../DataBase/models/tourModel.js";
-import { catchAsyncError } from "../../middlewares/catchAsyncError.js";
-import { removeImage } from "../../middlewares/deleteImg.js";
-import { AppError } from "../../utilities/AppError.js";
-import { ApiFeature } from "../../utilities/AppFeature.js";
+import tourModel from "../../../DataBase/models/tourModel.js";
+import { catchAsyncError } from "../../../middlewares/catchAsyncError.js";
+import { removeImage } from "../../../middlewares/deleteImg.js";
+import { AppError } from "../../../utilities/AppError.js";
+import { ApiFeature } from "../../../utilities/AppFeature.js";
 import { ObjectId } from "mongodb";
 
 const createTour = catchAsyncError(async (req, res, next) => {
