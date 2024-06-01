@@ -14,8 +14,13 @@ import {
   register,
   removeFromWishList,
   sendCode,
+  updateUserProfile,
 } from "./user.controller.js";
-import { forgetPasswordSchema, userSchemaLogin } from "./user.validation.js";
+import {
+  forgetPasswordSchema,
+  userSchemaLogin,
+  userSchemaUpdate,
+} from "./user.validation.js";
 import { allowedTo, auth } from "../../../middlewares/auth.js";
 import { validation } from "../../../middlewares/validation.js";
 import { saveImg } from "../../../middlewares/uploadToCloud.js";
@@ -27,7 +32,16 @@ userRouter
   .route("/register")
   .post(uploadMixfile([{ name: "avatar", maxCount: 1 }]), saveImg, register);
 userRouter.route("/login").post(validation(userSchemaLogin), login);
-userRouter.route("/").get(auth, allowedTo("admin"), getAllUsers);
+userRouter
+  .route("/")
+  .get(auth, allowedTo("admin"), getAllUsers)
+  .patch(
+    auth,
+    uploadMixfile([{ name: "avatar", maxCount: 1 }]),
+    saveImg,
+    validation(userSchemaUpdate),
+    updateUserProfile
+  );
 userRouter.route("/profile").get(auth, getUserProfile);
 userRouter.route("/authentication").get(auth, authentication);
 userRouter.route("/authorization").get(auth, authorization);
