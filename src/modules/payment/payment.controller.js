@@ -5,8 +5,7 @@ import subscriptionModel from "../../../DataBase/models/subscriptionModel.js";
 import jwt from "jsonwebtoken";
 import fetch from "node-fetch";
 import "dotenv/config";
-import changeCurrence from "../../../utilities/changeCurrence.js";
-import { response } from "express";
+
 import axios from "axios";
 
 const stripeInstance = stripe(process.env.STRIPE_SECRET_KEY);
@@ -96,6 +95,32 @@ export const sessionCheckout = catchAsyncError(async (req, res, next) => {
   }
 });
 
+export const handleFaildPayment = catchAsyncError(async (req, res, next) => {
+  const { token } = req.params;
+  jwt.verify(token, process.env.JWT_SECRET, async function (err, decoded) {
+    if (err) return next(new AppError(err.message));
+
+    const { subscriptionId } = decoded;
+    const subscription = await subscriptionModel.findById(subscriptionId);
+
+    res.redirect(
+      `https://pyramidsegypttour.com/account/user/${subscription.userDetails._id}/${subscriptionId}/orderFailed`
+    );
+  });
+});
+export const handlePendingPayment = catchAsyncError(async (req, res, next) => {
+  const { token } = req.params;
+  jwt.verify(token, process.env.JWT_SECRET, async function (err, decoded) {
+    if (err) return next(new AppError(err.message));
+
+    const { subscriptionId } = decoded;
+    const subscription = await subscriptionModel.findById(subscriptionId);
+
+    res.redirect(
+      `https://pyramidsegypttour.com/account/user/${subscription.userDetails._id}/${subscriptionId}/orderPending`
+    );
+  });
+});
 export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
   const { token } = req.params;
   jwt.verify(token, process.env.JWT_SECRET, async function (err, decoded) {
@@ -109,7 +134,7 @@ export const handleSuccessPayment = catchAsyncError(async (req, res, next) => {
     );
 
     res.redirect(
-      `https://pyramidsegypttour.com/account/user/${subscription.userDetails}/${subscriptionId}/orderConfirmed`
+      `https://pyramidsegypttour.com/account/user/${subscription.userDetails._id}/${subscriptionId}/orderConfirmed`
     );
   });
 });
@@ -233,9 +258,9 @@ function createInvoiceLink(
     currency,
     customer,
     redirectionUrls: {
-      successUrl: `https://tours-b5zy.onrender.com/payment/handelPassCheckout/${token}`,
-      failUrl: `https://pyramidsegypttour.com/account/user/orderFailed`,
-      pendingUrl: `https://pyramidsegypttour.com/account/user/orderPeding`,
+      successUrl: `https://pyramidsegypttour.com/api/payment/handelPassCheckout/${token}`,
+      failUrl: `https://pyramidsegypttour.com/api/payment/handelFaildPass/${token}`,
+      pendingUrl: `https://pyramidsegypttour.com/api/payment/handelPendingPass/${token}`,
     },
     cartItems,
     sendEmail: true,
@@ -243,7 +268,7 @@ function createInvoiceLink(
 
   var config = {
     method: "post",
-    url: "https://app.fawaterk.com/api/v2/invoiceInitPay",
+    url: "https://staging.fawaterk.com/api/v2/invoiceInitPay",
     headers: {
       Authorization: `Bearer ${process.env.API_TOKEN_FWATERK}`,
       "Content-Type": "application/json",
@@ -261,9 +286,8 @@ function createInvoiceLink(
   });
 }
 
-///////////////////////////////////////////////// paaaaaaaaaaaaaaaaaa
-///////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////==================================
+//=============================================================
+//=============================================================
 
 const environment = process.env.ENVIRONMENT || "sandbox";
 const client_id = process.env.CLIENT_ID;
